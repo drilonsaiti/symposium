@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\TalkFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Talk extends Model
 {
-    /** @use HasFactory<\Database\Factories\TalkFactory> */
+    /** @use HasFactory<TalkFactory> */
     use HasFactory;
 
     protected $guarded = ['id'];

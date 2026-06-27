@@ -8,5 +8,4 @@ enum TalkType: string
     case STANDARD = 'standard';
     case KEYNOTE = 'keynote';
 
-
 }

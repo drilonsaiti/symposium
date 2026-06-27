@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
         User::factory()
             ->has(Talk::factory()->count(5))
             ->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
 
         Conference::factory()->count(5)->create();
     }
