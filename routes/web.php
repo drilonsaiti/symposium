@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TalkController;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +19,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('talks', TalkController::class);
+    Route::resource('conferences', ConferenceController::class)->except(['index', 'show']);
 });
+Route::resource('conferences', ConferenceController::class)->only(['index', 'show']);
+
 
 
 require __DIR__.'/auth.php';

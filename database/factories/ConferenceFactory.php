@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Conference;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -31,7 +32,7 @@ class ConferenceFactory extends Factory
             'ends_at' => $endsAt,
             'cfp_starts_at' => $cfpStartsAt,
             'cfp_ends_at' => $cfpEndsAt,
-
+            'user_id' => User::factory(),
         ];
     }
 }
