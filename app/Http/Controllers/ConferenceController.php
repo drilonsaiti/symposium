@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enum\TalkSubmissionStatus;
 use App\Http\Requests\StoreConferenceRequest;
 use App\Http\Requests\UpdateConferenceRequest;
+use App\Models\Bio;
 use App\Models\Conference;
 use App\Models\Talk;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -21,7 +22,7 @@ class ConferenceController extends Controller
     {
         //
         $conferences = Conference::latest('starts_at')->paginate(12);
-        return view('conferences.index', compact('conferences'));
+        return view('conferences.public.index', compact('conferences'));
     }
 
     /**
@@ -58,13 +59,13 @@ class ConferenceController extends Controller
         $user = auth()->user();
         $isOwner = $user?->is($conference->user) ?? false;
         $canViewSubmissions = $user?->can('viewSubmissions', $conference) ?? false;
-        $allTalks = $conference->talks()->with('author')->get();
+        $allTalks = $conference->talks()
+            ->with('author')
+            ->get();
 
         $acceptedTalks = $allTalks->filter(fn($t) => $t->pivot->status === TalkSubmissionStatus::ACCEPTED);
 
-        $submissions = $canViewSubmissions
-            ? $conference->talks()->get()
-            : collect();
+        $submissions = $canViewSubmissions ? $allTalks : collect();
 
         $talkSubmissionStatuses = $canViewSubmissions
             ? TalkSubmissionStatus::cases()
@@ -72,14 +73,25 @@ class ConferenceController extends Controller
 
         $mySubmissions = collect();
         $availableTalks = collect();
+        $bios = collect();
+        $biosIds = $allTalks
+            ->pluck('pivot.bio_id')
+            ->filter()
+            ->unique();
+        $submissionBios = Bio::whereIn('id',$biosIds)
+            ->get()->keyBy('id');
+
 
         if ($user && ! $isOwner) {
+            $bios = $user->bios()->latest()->get();
+
             $mySubmissions = $allTalks->filter(fn($t) => $t->user_id === $user?->id);
 
             $availableTalks = $user->talks()
                 ->whereNotIn('talks.id', $mySubmissions->pluck('id'))
                 ->latest()
                 ->get();
+
         }
 
         $today = now()->startOfDay();
@@ -89,13 +101,15 @@ class ConferenceController extends Controller
         $cfpIsOpen = $today->gte($cfpStartsAt)
             && $today->lte($cfpEndsAt);
 
-        return view('conferences.show', compact(
+        return view('conferences.public.show', compact(
             'conference',
             'acceptedTalks',
             'submissions',
             'talkSubmissionStatuses',
             'mySubmissions',
             'availableTalks',
+            'bios',
+            'submissionBios',
             'isOwner',
             'cfpIsOpen',
         ));

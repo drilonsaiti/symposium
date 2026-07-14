@@ -28,7 +28,10 @@ class Talk extends Model
     {
         return $this->belongsToMany(Conference::class)
             ->using(ConferenceTalk::class)
-            ->withPivot('status')
+            ->withPivot([
+                'status',
+                'bio_id'
+            ])
             ->withTimestamps();
     }
 }

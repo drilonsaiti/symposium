@@ -18,7 +18,15 @@ class TalkController extends Controller
     public function index()
     {
         //
-        $talks = auth()->user()->talks;
+        $talks = auth()
+            ->user()
+            ->talks()
+            ->with([
+                'conferences' => fn ($query) => $query->orderBy('starts_at'),
+            ])
+            ->withCount('conferences')
+            ->latest('updated_at')
+            ->paginate(10);
         return view('talks.index', compact('talks'));
     }
 
@@ -53,6 +61,10 @@ class TalkController extends Controller
     {
         //
         $this->authorize('view', $talk);
+        $talk->load(['conferences' => fn($query) => $query->orderBy('starts_at')])
+            ->loadCount('conferences')
+            ->latest('updated_at');
+
         return view('talks.show', compact('talk'));
     }
 

@@ -16,12 +16,16 @@ class TalkSubmissionController extends Controller
     //
     use AuthorizesRequests;
 
-    public function store(Conference $conference, Talk $talk)
+    public function store(StoreTalkSubmissionRequest $request, Conference $conference, Talk $talk)
     {
+        $validated = $request->validated();
         $this->authorize('submitTalk', $talk);
 
         $result = $conference->talks()->syncWithoutDetaching([
-            $talk->id => ['status' => TalkSubmissionStatus::PENDING],
+            $talk->id => [
+                'status' => TalkSubmissionStatus::PENDING,
+                'bio_id' => $validated['bio_id'],
+            ],
         ]);
 
         if (empty($result['attached'])) {

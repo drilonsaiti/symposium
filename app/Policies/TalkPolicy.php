@@ -23,6 +23,11 @@ class TalkPolicy
         return true;
     }
 
+    public function create(User $user)
+    {
+        return true;
+    }
+
     public function delete(User $user, Talk $talk)
     {
         return $user->id === $talk->user_id;

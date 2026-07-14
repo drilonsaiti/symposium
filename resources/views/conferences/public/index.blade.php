@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public.app')
 
 @section('title', 'Conferences')
 
@@ -103,7 +103,7 @@
 
                         <article class="group relative flex overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
                             <a
-                                href="{{ route('conferences.show', $conference) }}"
+                                href="{{ route('public.conferences.show', $conference) }}"
                                 class="flex min-h-full w-full flex-col p-6 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-inset sm:p-7"
                                 aria-label="View {{ $conference->title }}"
                             >

@@ -24,4 +24,9 @@ class ConferenceTalk extends Pivot
     {
         return $this->belongsTo(Talk::class);
     }
+
+    public function bio(): BelongsTo
+    {
+        return $this->belongsTo(Bio::class);
+    }
 }
