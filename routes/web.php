@@ -20,6 +20,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('talks', TalkController::class);
     Route::resource('conferences', ConferenceController::class)->except(['index', 'show']);
+    Route::post('conferences/{conference}/talks/{talk}', [\App\Http\Controllers\TalkSubmissionController::class,'store'])->name('conferences.talks.submit');
+    Route::patch('conferences/{conference}/talks/{talk}/status', [\App\Http\Controllers\TalkSubmissionController::class,'changeStatus'])->name('conferences.talks.status');
+
 });
 Route::resource('conferences', ConferenceController::class)->only(['index', 'show']);
 

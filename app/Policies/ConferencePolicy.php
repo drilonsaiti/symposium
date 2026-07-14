@@ -63,4 +63,14 @@ class ConferencePolicy
     {
         return false;
     }
+
+    public function viewSubmissions(User $user, Conference $conference): bool
+    {
+        return $user->id === $conference->user_id;
+    }
+
+    public function manageSubmissions(User $user, Conference $conference): bool
+    {
+        return $user->id === $conference->user_id;
+    }
 }

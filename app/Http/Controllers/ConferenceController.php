@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\TalkSubmissionStatus;
 use App\Http\Requests\StoreConferenceRequest;
 use App\Http\Requests\UpdateConferenceRequest;
 use App\Models\Conference;
+use App\Models\Talk;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ConferenceController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -50,8 +53,52 @@ class ConferenceController extends Controller
      */
     public function show(Conference $conference)
     {
-        //
-        return view('conferences.show', compact('conference'));
+        $conference->load('user');
+
+        $user = auth()->user();
+        $isOwner = $user?->is($conference->user) ?? false;
+        $canViewSubmissions = $user?->can('viewSubmissions', $conference) ?? false;
+        $allTalks = $conference->talks()->with('author')->get();
+
+        $acceptedTalks = $allTalks->filter(fn($t) => $t->pivot->status === TalkSubmissionStatus::ACCEPTED);
+
+        $submissions = $canViewSubmissions
+            ? $conference->talks()->get()
+            : collect();
+
+        $talkSubmissionStatuses = $canViewSubmissions
+            ? TalkSubmissionStatus::cases()
+            : [];
+
+        $mySubmissions = collect();
+        $availableTalks = collect();
+
+        if ($user && ! $isOwner) {
+            $mySubmissions = $allTalks->filter(fn($t) => $t->user_id === $user?->id);
+
+            $availableTalks = $user->talks()
+                ->whereNotIn('talks.id', $mySubmissions->pluck('id'))
+                ->latest()
+                ->get();
+        }
+
+        $today = now()->startOfDay();
+        $cfpStartsAt = $conference->cfp_starts_at->copy()->startOfDay();
+        $cfpEndsAt = $conference->cfp_ends_at->copy()->startOfDay();
+
+        $cfpIsOpen = $today->gte($cfpStartsAt)
+            && $today->lte($cfpEndsAt);
+
+        return view('conferences.show', compact(
+            'conference',
+            'acceptedTalks',
+            'submissions',
+            'talkSubmissionStatuses',
+            'mySubmissions',
+            'availableTalks',
+            'isOwner',
+            'cfpIsOpen',
+        ));
     }
 
     /**

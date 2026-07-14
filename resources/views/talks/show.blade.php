@@ -10,20 +10,25 @@
                     {{ $talk->title }}
                 </h1>
 
+
+
+
                 <div class="space-x-2">
+                    @can('update', $talk)
                     <a
                         href="{{ route('talks.edit', $talk) }}"
                         class="inline-block rounded-lg bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
                     >
                         Edit
                     </a>
+                    @endcan
 
-                    <a
-                        href="{{ route('talks.index') }}"
-                        class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
-                    >
-                        Back
-                    </a>
+                        <a
+                            href="{{ url()->previous() }}"
+                            class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
+                        >
+                            Back
+                        </a>
                 </div>
             </div>
 

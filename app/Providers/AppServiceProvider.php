@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Conference;
+use App\Models\ConferenceTalk;
 use App\Models\Talk;
+use App\Policies\ConferencePolicy;
 use App\Policies\TalkPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -24,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Gate::policy(Talk::class, TalkPolicy::class);
+        Gate::policy(Conference::class, ConferencePolicy::class);
     }
 }
