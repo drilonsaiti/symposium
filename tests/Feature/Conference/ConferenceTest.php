@@ -5,10 +5,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('filters by search returning wrong conferences',function(){
-    \App\Models\Conference::factory()->create(['title'=>'LaravelConf']);
+it('search filter returns matching conferences', function () {
+    Conference::factory()->create(['title' => 'LaravelConf']);
+    Conference::factory()->create(['title' => 'SymfonyConf']);
 
-    $this->get(route('conferences.index',['term'=>'Laravel']))->assertDontSee('LaravelConf');
+    $this->get(route('public.conferences.index', ['term' => 'Laravel'],
+        ['X-Requested-With' => 'XMLHttpRequest',]))
+        ->assertSee('LaravelConf')
+        ->assertDontSee('SymfonyConf');
 });
 
 it('filters by starts date(upcoming and past) returning wrong conferences',function(){
@@ -24,7 +28,8 @@ it('filters by starts date(upcoming and past) returning wrong conferences',funct
 
     $this->get(route('public.conferences.index', [
         'conference_date' => 'upcoming',
-    ]))
+    ],
+        ['X-Requested-With' => 'XMLHttpRequest',]))
         ->assertSee('UpcomingConf')
         ->assertDontSee('PastConf');
 });
@@ -51,19 +56,22 @@ it('filters by cfp starts date(upcoming,open,closed) returning wrong conferences
     // Upcoming
     $this->get(route('public.conferences.index', [
         'cfp_status' => 'upcoming',
-    ]))
+    ],
+        ['X-Requested-With' => 'XMLHttpRequest',]))
         ->assertSee('UpcomingConf')
-        ->assertDontSee('ClosedConf');
+        ->assertDontSee(['OpenConf', 'ClosedConf']);
 
     $this->get(route('public.conferences.index', [
         'cfp_status' => 'open',
-    ]))
+    ],
+        ['X-Requested-With' => 'XMLHttpRequest',]))
         ->assertSee('OpenConf')
         ->assertDontSee(['UpcomingConf', 'ClosedConf']);
 
     $this->get(route('public.conferences.index', [
         'cfp_status' => 'closed',
-    ]))
+    ],
+        ['X-Requested-With' => 'XMLHttpRequest',]))
         ->assertSee('ClosedConf')
         ->assertDontSee(['UpcomingConf', 'OpenConf']);
 });

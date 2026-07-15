@@ -161,3 +161,43 @@ it('change status of submitted talk', function () {
         'status' => 'accepted',
     ]);
 });
+
+it('cannot change status from rejected',function (){
+    $talkUser = makeUser();
+    $conferenceUser = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $conferenceUser->id,
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $talkUser->id,
+    ]);
+
+    $this->actingAs($talkUser)->post(route('conferences.talks.submit', [
+        'conference' => $conference,
+        'talk' => $talk,
+    ]))->assertRedirect(route('conferences.show', $conference));
+
+    $this->assertDatabaseHas('conference_talk', [
+        'conference_id' => $conference->id,
+        'talk_id' => $talk->id,
+    ]);
+
+    $this->actingAs($conferenceUser)->patch(route('conferences.talks.status',[$conference,$talk]),[
+            'status' => 'rejected',
+        ]
+    );
+
+    $this->assertDatabaseHas('conference_talk', [
+        'conference_id' => $conference->id,
+        'talk_id' => $talk->id,
+        'status' => 'rejected',
+    ]);
+
+    $this->actingAs($conferenceUser)->patch(route('conferences.talks.status',[$conference,$talk]),[
+        'status' => 'accepted',
+        ]
+    )->assertStatus(302);
+
+});
