@@ -5,13 +5,15 @@
         <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-16">
 
             @if(session('status'))
-                <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+                <div
+                    class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if($errors->any())
-                <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-800">
+                <div
+                    class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-800">
                     {{ $errors->first() }}
                 </div>
             @endif
@@ -29,7 +31,9 @@
 
                         <div class="mt-8 grid gap-4 sm:grid-cols-2">
                             <div class="flex items-center gap-4 rounded-2xl bg-gray-50 p-4">
-                                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm" aria-hidden="true">
+                                <div
+                                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm"
+                                    aria-hidden="true">
                                     📍
                                 </div>
 
@@ -44,7 +48,9 @@
                             </div>
 
                             <div class="flex items-center gap-4 rounded-2xl bg-gray-50 p-4">
-                                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm" aria-hidden="true">
+                                <div
+                                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm"
+                                    aria-hidden="true">
                                     📅
                                 </div>
 
@@ -163,14 +169,16 @@
                     </div>
 
                     @if($acceptedTalks->isEmpty())
-                        <div class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+                        <div
+                            class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
                             <p class="font-semibold text-gray-900">Speakers will be announced soon.</p>
                             <p class="mt-1 text-sm text-gray-500">Check back later for programme updates.</p>
                         </div>
                     @else
                         <div class="mt-7 grid gap-4">
                             @foreach($acceptedTalks as $talk)
-                                <article class="rounded-2xl border border-gray-200 p-5 transition hover:border-gray-300 hover:shadow-sm sm:p-6">
+                                <article
+                                    class="rounded-2xl border border-gray-200 p-5 transition hover:border-gray-300 hover:shadow-sm sm:p-6">
                                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                         <div class="min-w-0">
                                             <h3 class="text-lg font-bold text-gray-950 sm:text-xl">
@@ -221,7 +229,8 @@
                         </div>
 
                         @if($submissions->isEmpty())
-                            <div class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+                            <div
+                                class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
                                 <p class="font-semibold text-gray-900">No submissions yet.</p>
                             </div>
                         @else
@@ -233,10 +242,11 @@
                                     <article class="rounded-2xl border border-gray-200 p-5 sm:p-6">
                                         <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                                             <div class="min-w-0">
-                                                <a href="{{route('talks.show',$talk->id)}}" class="cursor-pointer hover:underline">
-                                                <h3 class="text-lg font-bold text-gray-950 sm:text-xl">
-                                                    {{ $talk->title }}
-                                                </h3>
+                                                <a href="{{route('talks.show',$talk->id)}}"
+                                                   class="cursor-pointer hover:underline">
+                                                    <h3 class="text-lg font-bold text-gray-950 sm:text-xl">
+                                                        {{ $talk->title }}
+                                                    </h3>
                                                 </a>
                                                 <p class="mt-2 leading-7 text-gray-600">
                                                     {{ Str::limit($talk->abstract, 200) }}
@@ -308,17 +318,18 @@
                                 Call for Papers
                             </p>
                             @if(! $isOwner)
-                            <h2 class="mt-2 text-2xl font-bold text-gray-950">
-                                Submit your proposal
-                            </h2>
-                            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-                                Select one of your talks and submit it to this conference.
-                            </p>
+                                <h2 class="mt-2 text-2xl font-bold text-gray-950">
+                                    Submit your proposal
+                                </h2>
+                                <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+                                    Select one of your talks and submit it to this conference.
+                                </p>
                             @endif
                         </div>
 
                         @if($cfpIsOpen)
-                            <span class="w-fit rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+                            <span
+                                class="w-fit rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
                                 Open
                             </span>
                         @elseif(now()->startOfDay()->lt($conference->cfp_starts_at->copy()->startOfDay()))
@@ -415,7 +426,8 @@
                                                 @else
                                                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
                                                         <p class="text-sm text-amber-800">
-                                                            Adding a bio helps organizers learn more about you before your talk submission.
+                                                            Adding a bio helps organizers learn more about you before
+                                                            your talk submission.
                                                         </p>
 
                                                         <a
@@ -429,16 +441,17 @@
                                             </div>
 
 
-                                                <button
-                                                    type="submit"
-                                                    class="mt-5 w-full rounded-xl bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                                >
-                                                    Submit talk
-                                                </button>
+                                            <button
+                                                type="submit"
+                                                class="mt-5 w-full rounded-xl bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                            >
+                                                Submit talk
+                                            </button>
 
                                         </form>
                                     @else
-                                        <div class="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center">
+                                        <div
+                                            class="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center">
                                             <p class="font-semibold text-gray-900">No available talks to submit.</p>
                                             <p class="mt-1 text-sm text-gray-500">
                                                 Create a talk first, or all your talks have already been submitted here.
@@ -466,7 +479,8 @@
 
                                         <div class="mt-4 space-y-3">
                                             @foreach($mySubmissions as $talk)
-                                                <div class="flex flex-col gap-3 rounded-2xl border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                <div
+                                                    class="flex flex-col gap-3 rounded-2xl border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between">
                                                     <div class="min-w-0">
                                                         <p class="truncate font-semibold text-gray-950">{{ $talk->title }}</p>
                                                         <p class="mt-1 text-sm text-gray-500">
@@ -474,7 +488,8 @@
                                                         </p>
                                                     </div>
 
-                                                    <span class="w-fit rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
+                                                    <span
+                                                        class="w-fit rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
                                                         {{ $talk->pivot->status->label()}}
                                                     </span>
                                                 </div>

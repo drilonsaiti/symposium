@@ -65,7 +65,8 @@
         >{{ old('bio', $bio->bio ?? '') }}</textarea>
 
         <p class="mt-2 text-sm leading-6 text-gray-500">
-            Short conference bios are commonly around 50 words. Keynote introductions may require approximately 200 words.
+            Short conference bios are commonly around 50 words. Keynote introductions may require approximately 200
+            words.
         </p>
     </div>
 
@@ -89,7 +90,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMbioLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const bio = document.getElementById('bio');
             const wordCount = document.getElementById('bio-word-count');
 

@@ -6,11 +6,11 @@ use App\Http\Requests\StoreBioRequest;
 use App\Http\Requests\UpdateBioRequest;
 use App\Models\Bio;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 
 class BioController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -18,7 +18,7 @@ class BioController extends Controller
     {
         //
         $bios = auth()->user()->bios()->paginate(10);
-        return view('bios.index',compact('bios'));
+        return view('bios.index', compact('bios'));
     }
 
     /**
@@ -51,7 +51,7 @@ class BioController extends Controller
     {
         //
         $this->authorize('view', $bio);
-        return view('bios.show',compact('bio'));
+        return view('bios.show', compact('bio'));
     }
 
     /**
@@ -61,7 +61,7 @@ class BioController extends Controller
     {
         //
         $this->authorize('update', $bio);
-        return view('bios.edit',compact('bio'));
+        return view('bios.edit', compact('bio'));
     }
 
     /**

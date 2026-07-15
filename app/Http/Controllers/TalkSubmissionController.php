@@ -6,10 +6,8 @@ use App\Enum\TalkSubmissionStatus;
 use App\Http\Requests\ChangeStatusTalkSubmissionRequest;
 use App\Http\Requests\StoreTalkSubmissionRequest;
 use App\Models\Conference;
-use App\Models\ConferenceTalk;
 use App\Models\Talk;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 
 class TalkSubmissionController extends Controller
 {

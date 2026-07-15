@@ -25,9 +25,9 @@ class StoreTalkSubmissionRequest extends FormRequest
     {
         return [
             //
-            'bio_id' => ['nullable','integer',
+            'bio_id' => ['nullable', 'integer',
                 Rule::exists('bios', 'id')
-                ->where(fn ($query) => $query->where('user_id', $this->user()->id)),],
+                    ->where(fn($query) => $query->where('user_id', $this->user()->id)),],
         ];
     }
 }

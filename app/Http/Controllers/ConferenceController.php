@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enum\TalkSubmissionStatus;
+use App\Filters\ConferenceFilter;
 use App\Http\Requests\StoreConferenceRequest;
 use App\Http\Requests\UpdateConferenceRequest;
 use App\Models\Bio;
 use App\Models\Conference;
-use App\Models\Talk;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -18,10 +18,16 @@ class ConferenceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $conferences = Conference::latest('starts_at')->paginate(12);
+        $conferences = ConferenceFilter::apply($request, Conference::query())->paginate(12)
+            ->withQueryString();
+
+        if ($request->ajax()) {
+            return view('conferences.public.partials.list', compact('conferences'));
+        }
+
         return view('conferences.public.index', compact('conferences'));
     }
 
@@ -78,11 +84,11 @@ class ConferenceController extends Controller
             ->pluck('pivot.bio_id')
             ->filter()
             ->unique();
-        $submissionBios = Bio::whereIn('id',$biosIds)
+        $submissionBios = Bio::whereIn('id', $biosIds)
             ->get()->keyBy('id');
 
 
-        if ($user && ! $isOwner) {
+        if ($user && !$isOwner) {
             $bios = $user->bios()->latest()->get();
 
             $mySubmissions = $allTalks->filter(fn($t) => $t->user_id === $user?->id);

@@ -29,7 +29,8 @@
                 class="flex shrink-0 items-center gap-3"
                 aria-label="{{ config('app.name', 'Symposium') }} home"
             >
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-950 text-sm font-bold text-white shadow-sm">
+                <span
+                    class="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-950 text-sm font-bold text-white shadow-sm">
                     S
                 </span>
 
@@ -103,7 +104,8 @@
             </div>
 
             <details class="group relative md:hidden">
-                <summary class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-700 transition hover:bg-gray-50 hover:text-gray-950">
+                <summary
+                    class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-700 transition hover:bg-gray-50 hover:text-gray-950">
                     <span class="sr-only">Open navigation</span>
 
                     <svg

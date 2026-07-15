@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Conference;
 use App\Models\Talk;
 use App\Models\User;
 
@@ -33,7 +32,7 @@ class TalkPolicy
         return $user->id === $talk->user_id;
     }
 
-    public function submitTalk(User $user,Talk $talk)
+    public function submitTalk(User $user, Talk $talk)
     {
         return $user->id === $talk->user_id;
     }

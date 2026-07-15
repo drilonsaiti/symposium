@@ -176,7 +176,7 @@
                                 class="h-5 w-5"
                                 aria-hidden="true"
                             >
-                                <circle cx="12" cy="8" r="3" />
+                                <circle cx="12" cy="8" r="3"/>
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -295,7 +295,8 @@
                 <div class="space-y-8">
 
                     <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                        <div class="flex flex-col gap-4 border-b border-gray-200 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                        <div
+                            class="flex flex-col gap-4 border-b border-gray-200 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
                                     Submission activity
@@ -318,7 +319,8 @@
 
                         @if($submissions->isEmpty())
                             <div class="px-6 py-12 text-center sm:px-8">
-                                <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-600">
+                                <span
+                                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-600">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24"
@@ -346,7 +348,8 @@
                                 </h3>
 
                                 <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
-                                    Browse open conferences and submit one of your existing talks with the appropriate speaker bio.
+                                    Browse open conferences and submit one of your existing talks with the appropriate
+                                    speaker bio.
                                 </p>
 
                                 @if(\Illuminate\Support\Facades\Route::has('conferences.index'))
@@ -391,7 +394,8 @@
                                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
-                                                    <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $statusClasses }}">
+                                                    <span
+                                                        class="rounded-full px-3 py-1 text-xs font-semibold {{ $statusClasses }}">
                                                         {{ $statusLabel }}
                                                     </span>
 
@@ -433,7 +437,8 @@
                     </section>
 
                     <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                        <div class="flex flex-col gap-4 border-b border-gray-200 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                        <div
+                            class="flex flex-col gap-4 border-b border-gray-200 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
                                     Speaker content
@@ -474,7 +479,8 @@
                         @else
                             <div class="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
                                 @foreach($talks->take(4) as $talk)
-                                    <article class="rounded-2xl border border-gray-200 p-5 transition hover:border-gray-300 hover:shadow-sm">
+                                    <article
+                                        class="rounded-2xl border border-gray-200 p-5 transition hover:border-gray-300 hover:shadow-sm">
                                         <div class="flex items-start justify-between gap-4">
                                             <div class="min-w-0">
                                                 <h3 class="line-clamp-2 font-bold leading-6 text-gray-950">
@@ -483,13 +489,15 @@
 
                                                 <div class="mt-3 flex flex-wrap gap-2">
                                                     @if($talk->type)
-                                                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                                        <span
+                                                            class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
                                                             {{ method_exists($talk->type, 'label') ? $talk->type->label() : $talk->type }}
                                                         </span>
                                                     @endif
 
                                                     @if($talk->length)
-                                                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                                        <span
+                                                            class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
                                                             {{ $talk->length }} min
                                                         </span>
                                                     @endif
@@ -534,7 +542,8 @@
                                     class="group flex items-center justify-between rounded-2xl border border-gray-200 p-4 transition hover:border-gray-300 hover:bg-gray-50"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-950 text-white">
+                                        <span
+                                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-950 text-white">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24"
@@ -575,7 +584,8 @@
                                     class="group flex items-center justify-between rounded-2xl border border-gray-200 p-4 transition hover:border-gray-300 hover:bg-gray-50"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                                        <span
+                                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24"
@@ -585,7 +595,7 @@
                                                 class="h-5 w-5"
                                                 aria-hidden="true"
                                             >
-                                                <circle cx="12" cy="8" r="3" />
+                                                <circle cx="12" cy="8" r="3"/>
                                                 <path
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
@@ -617,7 +627,8 @@
                                     class="group flex items-center justify-between rounded-2xl border border-gray-200 p-4 transition hover:border-gray-300 hover:bg-gray-50"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                                        <span
+                                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24"
@@ -691,7 +702,8 @@
 
                         <div class="mt-6 space-y-4">
                             <div class="flex items-center gap-3">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['talk'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['talk'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
                                     @if($profileSteps['talk'])
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -713,13 +725,15 @@
                                     @endif
                                 </span>
 
-                                <span class="text-sm font-medium {{ $profileSteps['talk'] ? 'text-white' : 'text-gray-400' }}">
+                                <span
+                                    class="text-sm font-medium {{ $profileSteps['talk'] ? 'text-white' : 'text-gray-400' }}">
                                     Create your first talk
                                 </span>
                             </div>
 
                             <div class="flex items-center gap-3">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['bio'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['bio'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
                                     @if($profileSteps['bio'])
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -741,13 +755,15 @@
                                     @endif
                                 </span>
 
-                                <span class="text-sm font-medium {{ $profileSteps['bio'] ? 'text-white' : 'text-gray-400' }}">
+                                <span
+                                    class="text-sm font-medium {{ $profileSteps['bio'] ? 'text-white' : 'text-gray-400' }}">
                                     Add a speaker bio
                                 </span>
                             </div>
 
                             <div class="flex items-center gap-3">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['submission'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full {{ $profileSteps['submission'] ? 'bg-emerald-400 text-gray-950' : 'bg-white/10 text-gray-400' }}">
                                     @if($profileSteps['submission'])
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -769,7 +785,8 @@
                                     @endif
                                 </span>
 
-                                <span class="text-sm font-medium {{ $profileSteps['submission'] ? 'text-white' : 'text-gray-400' }}">
+                                <span
+                                    class="text-sm font-medium {{ $profileSteps['submission'] ? 'text-white' : 'text-gray-400' }}">
                                     Submit to a conference
                                 </span>
                             </div>

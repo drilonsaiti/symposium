@@ -5,7 +5,8 @@
                 href="{{ url('/') }}"
                 class="flex items-center gap-3"
             >
-                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-950 text-xs font-bold text-white">
+                <span
+                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-950 text-xs font-bold text-white">
                     S
                 </span>
 
@@ -47,7 +48,8 @@
             </div>
         </div>
 
-        <div class="mt-7 flex flex-col gap-2 border-t border-gray-200 pt-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+        <div
+            class="mt-7 flex flex-col gap-2 border-t border-gray-200 pt-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
             <p>
                 &copy; {{ now()->year }} {{ config('app.name', 'Symposium') }}.
             </p>

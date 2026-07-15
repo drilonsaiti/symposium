@@ -31,7 +31,8 @@
                 href="{{ route('dashboard') }}"
                 class="flex shrink-0 items-center gap-3"
             >
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-950 text-sm font-bold text-white">
+                    <span
+                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-950 text-sm font-bold text-white">
                         S
                     </span>
 
@@ -42,16 +43,16 @@
 
             <div class="hidden flex-1 items-center justify-center gap-1 md:flex">
 
-                    <a
-                        href="{{ route('dashboard') }}"
-                        @class([
-                            'rounded-lg px-3 py-2 text-sm font-semibold transition',
-                            'bg-gray-100 text-gray-950' => request()->routeIs('dashboard'),
-                            'text-gray-600 hover:bg-gray-50 hover:text-gray-950' => !request()->routeIs('dashboard'),
-                        ])
-                    >
-                        Dashboard
-                    </a>
+                <a
+                    href="{{ route('dashboard') }}"
+                    @class([
+                        'rounded-lg px-3 py-2 text-sm font-semibold transition',
+                        'bg-gray-100 text-gray-950' => request()->routeIs('dashboard'),
+                        'text-gray-600 hover:bg-gray-50 hover:text-gray-950' => !request()->routeIs('dashboard'),
+                    ])
+                >
+                    Dashboard
+                </a>
 
                 <a
                     href="{{ route('talks.index') }}"
@@ -101,7 +102,8 @@
                             class="flex items-center gap-3 rounded-xl px-2 py-1.5 text-left transition hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                             aria-haspopup="true"
                         >
-                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-700">
+                                <span
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-700">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </span>
 
@@ -132,7 +134,8 @@
 
                         <div class="absolute right-0 top-full h-3 w-full"></div>
 
-                        <div class="invisible absolute right-0 top-full z-50 mt-3 w-56 translate-y-1 rounded-2xl border border-gray-200 bg-white p-2 opacity-0 shadow-lg transition duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                        <div
+                            class="invisible absolute right-0 top-full z-50 mt-3 w-56 translate-y-1 rounded-2xl border border-gray-200 bg-white p-2 opacity-0 shadow-lg transition duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
 
                             <div class="border-b border-gray-100 px-3 py-3">
                                 <p class="truncate text-sm font-semibold text-gray-950">
@@ -198,7 +201,8 @@
             </div>
 
             <details class="group relative md:hidden">
-                <summary class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-700 transition hover:bg-gray-50 hover:text-gray-950">
+                <summary
+                    class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-700 transition hover:bg-gray-50 hover:text-gray-950">
                         <span class="sr-only">
                             Open navigation
                         </span>
@@ -236,12 +240,14 @@
                     </svg>
                 </summary>
 
-                <div class="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
+                <div
+                    class="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
 
                     @auth
                         <div class="border-b border-gray-100 px-3 py-3">
                             <div class="flex items-center gap-3">
-                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-700">
+                                    <span
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-700">
                                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                     </span>
 
@@ -359,7 +365,8 @@
 </main>
 
 <footer class="border-t border-gray-200 bg-white">
-    <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div
+        class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <p>
             &copy; {{ now()->year }} Symposium
         </p>

@@ -67,7 +67,8 @@
                     class="w-full rounded-xl border-gray-300 bg-white px-4 py-3 pr-20 text-gray-950 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500"
                 >
 
-                <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-gray-500">
+                <span
+                    class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-gray-500">
                     minutes
                 </span>
             </div>

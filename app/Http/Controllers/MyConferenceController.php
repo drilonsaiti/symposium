@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enum\TalkSubmissionStatus;
+use App\Filters\ConferenceFilter;
 use App\Models\Bio;
 use App\Models\Conference;
 use Illuminate\Http\Request;
@@ -10,10 +11,20 @@ use Illuminate\Http\Request;
 class MyConferenceController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
+        $query = auth()->user()
+            ->conferences()
+            ->getQuery();
 
-        $conferences = auth()->user()->conferences()->latest('starts_at')->paginate(12);
+        $conferences = ConferenceFilter::apply($request, $query)
+            ->paginate(12)
+            ->withQueryString();
+
+        if ($request->ajax()) {
+            return view('conferences.partials.list', compact('conferences'));
+        }
+
         return view('conferences.index', compact('conferences'));
     }
 
@@ -43,7 +54,7 @@ class MyConferenceController extends Controller
             ->pluck('pivot.bio_id')
             ->filter()
             ->unique();
-        $submissionBios = Bio::whereIn('id',$biosIds)
+        $submissionBios = Bio::whereIn('id', $biosIds)
             ->get()->keyBy('id');
 
 

@@ -27,11 +27,11 @@ class StoreConferenceRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
-            'url' => ['nullable','url' ,'max:255'],
-            'starts_at' => ['required', 'date','before:ends_at'],
+            'url' => ['nullable', 'url', 'max:255'],
+            'starts_at' => ['required', 'date', 'before:ends_at'],
             'ends_at' => ['required', 'date', 'after:starts_at'],
             'cfp_starts_at' => ['required', 'date', 'before:ends_at'],
-            'cfp_ends_at' => ['required', 'date', 'after:cfp_starts_at','before_or_equal:starts_at'],
+            'cfp_ends_at' => ['required', 'date', 'after:cfp_starts_at', 'before_or_equal:starts_at'],
         ];
     }
 }

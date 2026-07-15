@@ -7,7 +7,8 @@
         <div class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-16">
 
             @if (session('success') || session('status'))
-                <div class="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+                <div
+                    class="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
                     {{ session('success') ?? session('status') }}
                 </div>
             @endif
@@ -38,8 +39,10 @@
             </header>
 
             @if ($talks->isEmpty())
-                <section class="mt-10 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-700">
+                <section
+                    class="mt-10 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
+                    <div
+                        class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-700">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -85,7 +88,8 @@
                 <div class="mt-5 space-y-5">
                     @foreach ($talks as $talk)
 
-                        <article class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:border-gray-300 hover:shadow-md">
+                        <article
+                            class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:border-gray-300 hover:shadow-md">
 
                             <div class="p-6 sm:p-7">
                                 <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -100,11 +104,13 @@
                                         </a>
 
                                         <div class="mt-4 flex flex-wrap items-center gap-2">
-                                            <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
+                                            <span
+                                                class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
                                                 {{ $talk->type->label() }}
                                             </span>
 
-                                            <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600">
+                                            <span
+                                                class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600">
                                                 {{ $talk->length }} minutes
                                             </span>
                                         </div>
@@ -121,7 +127,8 @@
 
                             </div>
 
-                            <div class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/60 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+                            <div
+                                class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/60 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
 
                                 <a
                                     href="{{ route('talks.show', $talk) }}"

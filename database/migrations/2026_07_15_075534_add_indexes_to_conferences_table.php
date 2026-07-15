@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('conference_talk', function (Blueprint $table) {
+        Schema::table('conferences', function (Blueprint $table) {
             //
-            $table->foreignId('bio_id')->constrained()->cascadeOnDelete();
+            $table->index('starts_at');
+            $table->index('cfp_starts_at');
+            $table->index('cfp_ends_at');
         });
     }
 
@@ -21,7 +23,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('conference_talk', function (Blueprint $table) {
+        Schema::table('conferences', function (Blueprint $table) {
             //
         });
     }

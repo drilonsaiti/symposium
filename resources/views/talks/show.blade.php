@@ -5,7 +5,8 @@
         <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-16">
 
             @if (session('success') || session('status'))
-                <div class="mb-7 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+                <div
+                    class="mb-7 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
                     {{ session('success') ?? session('status') }}
                 </div>
             @endif
@@ -18,23 +19,23 @@
                 Back to talks
             </a>
 
-                @php
-                    $submissionGroups = $talk->conferences->groupBy(function ($conference) {
-                        $status = $conference->pivot->status;
+            @php
+                $submissionGroups = $talk->conferences->groupBy(function ($conference) {
+                    $status = $conference->pivot->status;
 
-                        return $status instanceof \BackedEnum
-                            ? $status->value
-                            : (string) $status;
-                    });
+                    return $status instanceof \BackedEnum
+                        ? $status->value
+                        : (string) $status;
+                });
 
-                    $nextConference = $talk->conferences
-                        ->filter(function ($conference) {
-                            return $conference->starts_at
-                                && $conference->starts_at->copy()->startOfDay()->gte(now()->startOfDay());
-                        })
-                        ->sortBy('starts_at')
-                        ->first();
-                @endphp
+                $nextConference = $talk->conferences
+                    ->filter(function ($conference) {
+                        return $conference->starts_at
+                            && $conference->starts_at->copy()->startOfDay()->gte(now()->startOfDay());
+                    })
+                    ->sortBy('starts_at')
+                    ->first();
+            @endphp
 
             <article class="mt-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
 
@@ -227,7 +228,8 @@
                                         };
                                     @endphp
 
-                                    <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset {{ $statusClasses }}">
+                                    <span
+                                        class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset {{ $statusClasses }}">
                     {{ $conferences->count() }}
                                         {{ $statusLabel }}
                 </span>
@@ -236,7 +238,8 @@
 
                             @if ($nextConference)
                                 <div class="mt-4 flex items-start gap-3 border-t border-gray-200 pt-4">
-                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-600 shadow-sm">
+                                    <div
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-600 shadow-sm">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 24 24"

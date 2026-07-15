@@ -5,7 +5,8 @@
                 href="{{ url('/') }}"
                 class="inline-flex items-center gap-3"
             >
-                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-950 text-sm font-bold text-white shadow-sm">
+                <span
+                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-950 text-sm font-bold text-white shadow-sm">
                     S
                 </span>
 

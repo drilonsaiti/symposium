@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Conference;
 use App\Models\Talk;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -25,7 +24,7 @@ class DashboardController extends Controller
             ->where('user_id', $user->id)
             ->whereHas('conferences')
             ->with([
-                'conferences' => fn ($query) => $query->latest('conference_talk.created_at'),
+                'conferences' => fn($query) => $query->latest('conference_talk.created_at'),
             ])
             ->latest()
             ->get();

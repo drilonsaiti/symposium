@@ -7,11 +7,11 @@ use App\Http\Requests\StoreTalkRequest;
 use App\Http\Requests\UpdateTalkRequest;
 use App\Models\Talk;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 
 class TalkController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +22,7 @@ class TalkController extends Controller
             ->user()
             ->talks()
             ->with([
-                'conferences' => fn ($query) => $query->orderBy('starts_at'),
+                'conferences' => fn($query) => $query->orderBy('starts_at'),
             ])
             ->withCount('conferences')
             ->latest('updated_at')

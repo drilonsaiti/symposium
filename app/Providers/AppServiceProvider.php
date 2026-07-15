@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Models\Bio;
 use App\Models\Conference;
-use App\Models\ConferenceTalk;
 use App\Models\Talk;
 use App\Policies\BioPolicy;
 use App\Policies\ConferencePolicy;

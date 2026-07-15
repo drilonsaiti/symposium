@@ -25,7 +25,7 @@ class StoreTalkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string','max:255'],
+            'title' => ['required', 'string', 'max:255'],
             'length' => ['required', 'integer', 'min:20'],
             'type' => ['required', Rule::enum(TalkType::class)],
             'abstract' => ['nullable', 'string'],

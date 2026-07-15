@@ -5,7 +5,8 @@
         <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-16">
 
             @if (session('success'))
-                <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+                <div
+                    class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
                     {{ session('success') }}
                 </div>
             @endif
@@ -21,7 +22,8 @@
                     </h1>
 
                     <p class="mt-3 max-w-2xl leading-7 text-gray-600">
-                        Manage bio versions for conference websites, keynote introductions, formal profiles, and community events.
+                        Manage bio versions for conference websites, keynote introductions, formal profiles, and
+                        community events.
                     </p>
                 </div>
 
@@ -36,8 +38,10 @@
             </div>
 
             @if ($bios->isEmpty())
-                <section class="mt-8 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-xl text-gray-700">
+                <section
+                    class="mt-8 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
+                    <div
+                        class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-xl text-gray-700">
                         Aa
                     </div>
 
@@ -61,7 +65,8 @@
             @else
                 <div class="mt-8 grid gap-5 lg:grid-cols-2">
                     @foreach ($bios as $bio)
-                        <article class="flex flex-col rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-gray-300 hover:shadow-md sm:p-7">
+                        <article
+                            class="flex flex-col rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-gray-300 hover:shadow-md sm:p-7">
 
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                 <div class="min-w-0">
@@ -72,11 +77,13 @@
                                     </a>
 
                                     <div class="mt-3 flex flex-wrap gap-2">
-                                        <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
+                                        <span
+                                            class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
                                             {{ $bio->nickname }}
                                         </span>
 
-                                        <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600">
+                                        <span
+                                            class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600">
                                             {{ str_word_count(strip_tags($bio->bio)) }}
                                             {{ Str::plural('word', str_word_count(strip_tags($bio->bio))) }}
                                         </span>

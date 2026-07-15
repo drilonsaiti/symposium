@@ -5,7 +5,8 @@
         <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-16">
 
             @if (session('success'))
-                <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+                <div
+                    class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
                     {{ session('success') }}
                 </div>
             @endif
