@@ -48,3 +48,8 @@ function something()
 {
     // ..
 }
+
+function makeUser(): \App\Models\User
+{
+    return \App\Models\User::factory()->create();
+}

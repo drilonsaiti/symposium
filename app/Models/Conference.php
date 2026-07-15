@@ -44,23 +44,26 @@ class Conference extends Model
 
     public function scopePast($query)
     {
-        return $query->where('starts_at', '<', now()->startOfDay());
+        return $query->where('ends_at', '<', now()->startOfDay());
     }
 
     public function scopeCfpOpen($query)
     {
-        return $query->where('cfp_starts_at', '<=', now()->startOfDay())
-            ->where('cfp_ends_at', '>=', now()->endOfDay());
+        $now = now();
+
+        return $query
+            ->where('cfp_starts_at', '<=', $now)
+            ->where('cfp_ends_at', '>=', $now);
     }
 
     public function scopeCfpUpcoming($query)
     {
-        return $query->where('cfp_starts_at', '>=', now()->startOfDay());
+        return $query->where('cfp_starts_at', '>', now());
     }
 
     public function scopeCfpClosed($query)
     {
-        return $query->where('cfp_ends_at', '<=', now()->endOfDay());
+        return $query->where('cfp_ends_at', '<', now());
     }
 
     public function scopeSearch($query, $term)

@@ -22,7 +22,7 @@ class TalkSubmissionController extends Controller
         $result = $conference->talks()->syncWithoutDetaching([
             $talk->id => [
                 'status' => TalkSubmissionStatus::PENDING,
-                'bio_id' => $validated['bio_id'],
+                'bio_id' => $validated['bio_id'] ?? null,
             ],
         ]);
 
