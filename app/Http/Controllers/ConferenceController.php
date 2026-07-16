@@ -8,6 +8,7 @@ use App\Http\Requests\StoreConferenceRequest;
 use App\Http\Requests\UpdateConferenceRequest;
 use App\Models\Bio;
 use App\Models\Conference;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -21,7 +22,16 @@ class ConferenceController extends Controller
     public function index(Request $request)
     {
         //
-        $conferences = ConferenceFilter::apply($request, Conference::query())->paginate(12)
+        $query = Conference::query();
+
+        if ($user = auth()->user()) {
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => fn(Builder $q) => $q->where('user_id', $user->id),
+                'dismissedByUsers as is_dismissed' => fn(Builder $q) => $q->where('user_id', $user->id),
+            ]);
+        }
+        $conferences = ConferenceFilter::apply($request, $query)
+            ->paginate(12)
             ->withQueryString();
 
         if ($request->ajax()) {

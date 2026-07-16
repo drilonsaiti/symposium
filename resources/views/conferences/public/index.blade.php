@@ -92,6 +92,22 @@
 
                     </select>
 
+                    <select
+                        id="saved"
+                        name="saved"
+                        class="appearance-none rounded-xl border-gray-300 py-3 pl-4 pr-10 text-sm leading-5 lg:w-48"
+                    >
+                        <option value="">Visible</option>
+                        @foreach(\App\Enum\ConferenceUserStatus::cases() as $status)
+                            <option
+                                value="{{ $status->value }}"
+                                @selected(request('saved') === $status->value)
+                            >
+                                {{ $status->label() }}
+                            </option>
+                        @endforeach
+                    </select>
+
                     <a
                         href="{{ route('public.conferences.index') }}"
                         class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 self-end">
@@ -142,6 +158,9 @@
             document.getElementById('cfp_status')
                 .addEventListener('change', loadConferences);
 
+            document.getElementById('saved')
+                .addEventListener('change', loadConferences);
+
             let timeout;
 
             document.getElementById('search-input')
@@ -151,6 +170,91 @@
                     timeout = setTimeout(loadConferences, 300);
                 })
         });
+
+        document.addEventListener('click', async (e) => {
+            const button = e.target.closest('[data-conference-action]');
+
+            if (!button) return;
+
+            e.preventDefault();
+
+            const actions = button.closest('[data-conference-actions]');
+            const requestedStatus = button.dataset.statusValue;
+            const isRemoving = actions.dataset.status === requestedStatus;
+
+            const buttons = actions.querySelectorAll('[data-conference-action]');
+
+            buttons.forEach((item) => {
+                    item.disabled = true;
+                }
+            );
+
+            try{
+                const response = await fetch(button.dataset.url , {
+                    method: isRemoving ? 'DELETE' : 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .content,
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Request failed with status ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                renderConferenceActions(actions, data.status ?? '');
+            }catch (error) {
+                console.error(error);
+                window.alert(
+                    'The conference status could not be updated.'
+                );
+            } finally {
+                buttons.forEach((item) => {
+                    item.disabled = false;
+                });
+            }
+        });
+
+        function renderConferenceActions(actions, status) {
+            actions.dataset.status = status;
+
+            actions.querySelectorAll('[data-conference-action]')
+                .forEach((button) => {
+                    const isActive = button.dataset.statusValue === status;
+
+                    const activeClasses = button.dataset.activeClasses
+                        .split(/\s+/)
+                        .filter(Boolean)
+
+                    const inactiveClasses = button.dataset.inactiveClasses
+                        .split(/\s+/)
+                        .filter(Boolean)
+
+                    button.classList.remove(...activeClasses,...inactiveClasses)
+                    button.classList.add(
+                        ...(isActive ? activeClasses : inactiveClasses)
+                    )
+
+                    button.setAttribute('aria-pressed', isActive)
+
+                    button.querySelector('[data-action-label]')
+                        .textContent = isActive ? button.dataset.activeLabel : button.dataset.inactiveLabel
+
+                    const fillIcon = button.querySelector('[data-active-fill]');
+
+                    if (fillIcon) {
+                        fillIcon.setAttribute('fill', isActive ? 'currentColor' : 'none')
+                    }
+                }
+            );
+        }
     </script>
 @endpush
 

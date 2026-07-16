@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enum\ConferenceUserStatus;
 use Database\Factories\ConferenceFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,7 +25,16 @@ class Conference extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)
+            ->using(ConferenceUser::class)
+            ->withPivot('status');
+    }
+
+    public function conferenceUser(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->using(ConferenceUser::class)
+            ->withPivot('status');
     }
 
     public function talks(): BelongsToMany
@@ -72,5 +83,31 @@ class Conference extends Model
             $q->where('title', 'like', "%{$term}%")
                 ->orWhere('location', 'like', "%{$term}%");
         });
+    }
+
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->conferenceUser()
+            ->wherePivot(
+                'status',
+                ConferenceUserStatus::FAVORITED
+            );
+    }
+
+    public function dismissedByUsers(): BelongsToMany
+    {
+        return $this->conferenceUser()
+            ->wherePivot(
+                'status',
+                ConferenceUserStatus::DISMISSED
+            );
+    }
+
+
+    public function scopeNotDismissedBy(Builder $query,User $user)
+    {
+        return $query->whereDoesntHave('dismissedByUsers', fn (Builder $q) =>
+            $q->where('user_id', $user->id)
+        );
     }
 }

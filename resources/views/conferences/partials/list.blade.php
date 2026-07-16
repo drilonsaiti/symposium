@@ -82,10 +82,11 @@
             @endphp
 
             <article
-                class="group relative flex overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
+                class="group relative flex flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
+
                 <a
                     href="{{ route('public.conferences.show', $conference) }}"
-                    class="flex min-h-full w-full flex-col p-6 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-inset sm:p-7"
+                    class="flex flex-1 w-full flex-col p-6 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-inset sm:p-7"
                     aria-label="View {{ $conference->title }}"
                 >
                     <div class="flex items-start justify-between gap-4">
@@ -194,43 +195,152 @@
                         {{ $conference->description }}
                     </p>
 
-                    <div class="mt-6 border-t border-gray-200 pt-5">
-                        <div class="flex items-end justify-between gap-4">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                                    Call for Papers
-                                </p>
-
-                                <p class="mt-2 text-sm font-semibold text-gray-900">
-                                    {{ $conference->cfp_starts_at->format('M d, Y') }}
-                                    <span class="font-normal text-gray-400">
-                                                    to
-                                                </span>
-                                    {{ $conference->cfp_ends_at->format('M d, Y') }}
-                                </p>
-                            </div>
-
-                            <span
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition group-hover:translate-x-1 group-hover:bg-gray-950 group-hover:text-white">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                class="h-4 w-4"
-                                                aria-hidden="true"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M5 12h14m-6-6 6 6-6 6"
-                                                />
-                                            </svg>
-                                        </span>
-                        </div>
-                    </div>
                 </a>
+
+                <div class="relative z-10 mt-auto border-t border-gray-200 px-6 py-5 sm:px-7">
+                    <div class="flex items-end justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Call for Papers
+                            </p>
+
+                            <p class="mt-2 text-sm font-semibold text-gray-900">
+                                {{ $conference->cfp_starts_at->format('M d, Y') }}
+
+                                <span class="font-normal text-gray-400">
+                    to
+                </span>
+
+                                {{ $conference->cfp_ends_at->format('M d, Y') }}
+                            </p>
+                        </div>
+
+                        <a
+                            href="{{ route('public.conferences.show', $conference) }}"
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition group-hover:translate-x-1 group-hover:bg-gray-950 group-hover:text-white"
+                            aria-label="View {{ $conference->title }}"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                class="h-4 w-4"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 12h14m-6-6 6 6-6 6"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+
+
+                    @auth
+                        @if(auth()->id() !== $conference->user_id)
+                            @php
+                                $currentStatus = $conference->is_favorited
+                                    ? \App\Enum\ConferenceUserStatus::FAVORITED->value
+                                    : (
+                                        $conference->is_dismissed
+                                            ? \App\Enum\ConferenceUserStatus::DISMISSED->value
+                                            : ''
+                                    );
+
+                                $isFavorited = $currentStatus ===
+                                    \App\Enum\ConferenceUserStatus::FAVORITED->value;
+
+                                $isDismissed = $currentStatus ===
+                                    \App\Enum\ConferenceUserStatus::DISMISSED->value;
+                            @endphp
+
+                            <div
+                                class="mt-4 flex flex-wrap items-center gap-2"
+                                data-conference-actions
+                                data-status="{{ $currentStatus }}"
+                            >
+                                <button
+                                    type="button"
+                                    data-conference-action
+                                    data-status-value="{{ \App\Enum\ConferenceUserStatus::FAVORITED->value }}"
+                                    data-url="{{ route('conferences.favorite', $conference) }}"
+                                    data-active-label="Saved"
+                                    data-inactive-label="Save"
+                                    data-active-classes="border-rose-200 bg-rose-50 text-rose-700"
+                                    data-inactive-classes="border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                    aria-pressed="{{ $isFavorited ? 'true' : 'false' }}"
+                                    class="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-50
+                    {{ $isFavorited
+                        ? 'border-rose-200 bg-rose-50 text-rose-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="{{ $isFavorited ? 'currentColor' : 'none' }}"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        class="h-4 w-4"
+                                        data-active-fill
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M12 20.25S4.5 16 4.5 9.75A4.25 4.25 0 0112 7a4.25 4.25 0 017.5 2.75C19.5 16 12 20.25 12 20.25z"
+                                        />
+                                    </svg>
+
+                                    <span data-action-label>
+                    {{ $isFavorited ? 'Saved' : 'Save' }}
+                </span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-conference-action
+                                    data-status-value="{{ \App\Enum\ConferenceUserStatus::DISMISSED->value }}"
+                                    data-url="{{ route('conferences.dismissed', $conference) }}"
+                                    data-active-label="Dismissed"
+                                    data-inactive-label="Dismiss"
+                                    data-active-classes="border-gray-950 bg-gray-950 text-white"
+                                    data-inactive-classes="border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                    aria-pressed="{{ $isDismissed ? 'true' : 'false' }}"
+                                    class="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-50
+                    {{ $isDismissed
+                        ? 'border-gray-950 bg-gray-950 text-white'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        class="h-4 w-4"
+                                        aria-hidden="true"
+                                    >
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path
+                                            stroke-linecap="round"
+                                            d="M9 9l6 6m0-6l-6 6"
+                                        />
+                                    </svg>
+
+                                    <span data-action-label>
+                    {{ $isDismissed ? 'Dismissed' : 'Dismiss' }}
+                </span>
+                                </button>
+                            </div>
+                        @endif
+
+                    @endauth
+
+                </div>
+
             </article>
         @endforeach
     </div>

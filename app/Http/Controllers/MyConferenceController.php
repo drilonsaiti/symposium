@@ -6,6 +6,7 @@ use App\Enum\TalkSubmissionStatus;
 use App\Filters\ConferenceFilter;
 use App\Models\Bio;
 use App\Models\Conference;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class MyConferenceController extends Controller
@@ -13,9 +14,14 @@ class MyConferenceController extends Controller
     //
     public function index(Request $request)
     {
-        $query = auth()->user()
-            ->conferences()
-            ->getQuery();
+        $query = Conference::query();
+
+        if ($user = auth()->user()) {
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => fn(Builder $q) => $q->where('user_id', $user->id),
+                'dismissedByUsers as is_dismissed' => fn(Builder $q) => $q->where('user_id', $user->id),
+            ]);
+        }
 
         $conferences = ConferenceFilter::apply($request, $query)
             ->paginate(12)

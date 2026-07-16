@@ -39,10 +39,63 @@
                 @endcan
             </header>
 
+                @auth
+                    @php
+                        $activeView = request('view', 'mine');
+                    @endphp
+
+                    <div
+                        id="conference-tabs"
+                        class="mb-6 inline-flex rounded-2xl border border-gray-200 bg-white p-1.5 shadow-sm"
+                    >
+                        <button
+                            type="button"
+                            data-conference-view="mine"
+                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                {{ $activeView === 'mine'
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
+                        >
+                            My conferences
+                        </button>
+
+                        <button
+                            type="button"
+                            data-conference-view="favorited"
+                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                {{ $activeView === 'favorited'
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
+                        >
+                            Saved conferences
+                        </button>
+
+                        <button
+                            type="button"
+                            data-conference-view="dismissed"
+                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                {{ $activeView === 'dismissed'
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
+                        >
+                            Dismissed
+                        </button>
+                    </div>
+                @endauth
+
             <form method="GET"
                   id="conference-filter-form"
                   action="{{ route('conferences.index') }}"
                   class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                @auth
+                    <input
+                        type="hidden"
+                        name="view"
+                        id="conference-view"
+                        value="{{ request('view', 'mine') }}"
+                    >
+                @endauth
 
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
 
@@ -104,7 +157,7 @@
 
 
             <div id="conference-list">
-                @include('conferences.public.partials.list')
+                @include('conferences.partials.list')
             </div>
 
         </div>
@@ -114,13 +167,37 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('conference-filter-form');
-            const list = document.getElementById('conference-list');
+            const form = document.getElementById(
+                'conference-filter-form'
+            );
+
+            const list = document.getElementById(
+                'conference-list'
+            );
+
+            const viewInput = document.getElementById(
+                'conference-view'
+            );
+
+            const tabs = document.querySelectorAll(
+                '[data-conference-view]'
+            );
+
+            let searchTimeout;
+            let activeRequest;
 
             async function loadConferences() {
-                const params = new URLSearchParams(new FormData(form));
+                activeRequest?.abort();
+                activeRequest = new AbortController();
+
+                const params = new URLSearchParams(
+                    new FormData(form)
+                );
 
                 const query = params.toString();
+                const url = query
+                    ? `${form.action}?${query}`
+                    : form.action;
 
                 history.replaceState(
                     {},
@@ -128,29 +205,107 @@
                     query ? `?${query}` : window.location.pathname
                 );
 
-                const response = await fetch(`{{ route('public.conferences.index') }}?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+                list.setAttribute('aria-busy', 'true');
 
-                list.innerHTML = await response.text();
+                try {
+                    const response = await fetch(url, {
+                        signal: activeRequest.signal,
+                        headers: {
+                            Accept: 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Request failed: ${response.status}`
+                        );
+                    }
+
+                    list.innerHTML = await response.text();
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error(error);
+                    }
+                } finally {
+                    list.removeAttribute('aria-busy');
+                }
             }
 
-            document.getElementById('conference-date')
+            function setActiveTab(activeView) {
+                tabs.forEach((tab) => {
+                    const isActive =
+                        tab.dataset.conferenceView === activeView;
+
+                    tab.classList.toggle(
+                        'bg-gray-950',
+                        isActive
+                    );
+
+                    tab.classList.toggle(
+                        'text-white',
+                        isActive
+                    );
+
+                    tab.classList.toggle(
+                        'shadow-sm',
+                        isActive
+                    );
+
+                    tab.classList.toggle(
+                        'text-gray-600',
+                        !isActive
+                    );
+
+                    tab.classList.toggle(
+                        'hover:bg-gray-100',
+                        !isActive
+                    );
+
+                    tab.classList.toggle(
+                        'hover:text-gray-950',
+                        !isActive
+                    );
+
+                    tab.setAttribute(
+                        'aria-selected',
+                        isActive ? 'true' : 'false'
+                    );
+                });
+            }
+
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => {
+                    const view = tab.dataset.conferenceView;
+
+                    if (!viewInput || viewInput.value === view) {
+                        return;
+                    }
+
+                    viewInput.value = view;
+                    setActiveTab(view);
+                    loadConferences();
+                });
+            });
+
+            document
+                .getElementById('conference-date')
                 .addEventListener('change', loadConferences);
 
-            document.getElementById('cfp_status')
+            document
+                .getElementById('cfp_status')
                 .addEventListener('change', loadConferences);
 
-            let timeout;
-
-            document.getElementById('search-input')
+            document
+                .getElementById('search-input')
                 .addEventListener('input', () => {
-                    clearTimeout(timeout);
+                    clearTimeout(searchTimeout);
 
-                    timeout = setTimeout(loadConferences, 300);
-                })
+                    searchTimeout = setTimeout(
+                        loadConferences,
+                        300
+                    );
+                });
         });
     </script>
 @endpush

@@ -12,7 +12,7 @@
         name="description"
         content="@yield('meta_description', 'Manage speaker bios, reusable talks and conference submissions.')"
     >
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         @hasSection('title')
             @yield('title') · {{ config('app.name', 'Symposium') }}

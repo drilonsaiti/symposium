@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enum\ConferenceUserStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,5 +47,24 @@ class User extends Authenticatable
     public function conferences(): HasMany
     {
         return $this->hasMany(Conference::class);
+    }
+
+    public function conferencesStates(): BelongsToMany
+    {
+        return $this->belongsToMany(Conference::class)
+            ->using(ConferenceUser::class)
+            ->withPivot('status');
+    }
+
+    public function favoritedConferences(): BelongsToMany
+    {
+        return $this->conferencesStates()
+            ->wherePivot('status',ConferenceUserStatus::FAVORITED);
+    }
+
+    public function dismissedConferences(): BelongsToMany
+    {
+        return $this->conferencesStates()
+            ->wherePivot('status',ConferenceUserStatus::DISMISSED);
     }
 }

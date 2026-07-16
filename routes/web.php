@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BioController;
 use App\Http\Controllers\ConferenceController;
+use App\Http\Controllers\ConferenceDismissedController;
+use App\Http\Controllers\ConferenceFavoriteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TalkController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +19,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('conferences/{conference}/favorite', [ConferenceFavoriteController::class, 'store'])
+        ->name('conferences.favorite');
 
+    Route::delete('conferences/{conference}/favorite', [ConferenceFavoriteController::class, 'destroy'])
+        ->name('conferences.unfavorite');
+
+    Route::post('conferences/{conference}/dismissed', [ConferenceDismissedController::class, 'store'])
+        ->name('conferences.dismissed');
+
+    Route::delete('conferences/{conference}/dismissed ', [ConferenceDismissedController::class, 'destroy'])
+        ->name('conferences.undismissed');
 });
 
 Route::middleware('auth')->prefix('my')->group(function () {
