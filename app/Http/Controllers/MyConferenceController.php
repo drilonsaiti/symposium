@@ -23,7 +23,7 @@ class MyConferenceController extends Controller
             ]);
         }
 
-        $conferences = ConferenceFilter::apply($request, $query)
+        $conferences = ConferenceFilter::apply($request, $query, 'authenticated')
             ->paginate(12)
             ->withQueryString();
 

@@ -24,7 +24,6 @@ class TalkFactory extends Factory
             'title' => fake()->sentence(),
             'type' => fake()->randomElement(TalkType::cases())->value,
             'length' => rand(15, 60),
-            'abstract' => fake()->paragraph(),
             'organizer_notes' => fake()->paragraph(),
         ];
     }

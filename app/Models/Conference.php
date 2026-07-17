@@ -25,9 +25,7 @@ class Conference extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class)
-            ->using(ConferenceUser::class)
-            ->withPivot('status');
+        return $this->belongsTo(User::class);
     }
 
     public function conferenceUser(): BelongsToMany

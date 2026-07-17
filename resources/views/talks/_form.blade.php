@@ -113,29 +113,42 @@
 
     <div>
         <div class="flex items-center justify-between gap-4">
-            <label
-                for="abstract"
-                class="block text-sm font-semibold text-gray-900"
-            >
+            <label for="abstract" class="block text-sm font-semibold text-gray-900">
                 Abstract
+                <span class="font-normal text-gray-500">optional</span>
             </label>
 
-            <span
-                id="abstract-word-count"
-                class="text-sm font-medium text-gray-500"
-            >
-                0 words
-            </span>
+            <div class="flex items-center gap-4">
+                @if (isset($talk) && $talk->exists)
+
+                    <a href="{{ route('talks.revisions.index', $talk) }}"
+                       class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 transition hover:text-gray-950"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            class="h-4 w-4 fill-current"
+                        >
+                            <path
+                                d="M288 64c106 0 192 86 192 192S394 448 288 448c-65.2 0-122.9-32.5-157.6-82.3-10.1-14.5-30.1-18-44.6-7.9s-18 30.1-7.9 44.6C124.1 468.6 201 512 288 512 429.4 512 544 397.4 544 256S429.4 0 288 0C202.3 0 126.5 42.1 80 106.7L80 80c0-17.7-14.3-32-32-32S16 62.3 16 80l0 112c0 17.7 14.3 32 32 32l24.6 0c.5 0 1 0 1.5 0l86 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-38.3 0C154.9 102.6 217 64 288 64zm24 88c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65 0-94.1z"/>
+                        </svg>
+                        View revisions
+                    </a>
+                @endif
+
+                <span id="abstract-word-count" class="text-sm font-medium text-gray-500">
+            0 words
+        </span>
+            </div>
         </div>
 
         <textarea
             id="abstract"
             name="abstract"
             rows="8"
-            required
             placeholder="Describe the problem, key topics, and what attendees will take away from the session."
             class="mt-3 w-full rounded-xl border-gray-300 bg-white px-4 py-3 leading-7 text-gray-950 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500"
-        >{{ old('abstract', $talk->abstract ?? '') }}</textarea>
+        >{{ old('abstract', $talk->currentRevision->abstract ?? '') }}</textarea>
 
         <p class="mt-2 text-sm leading-6 text-gray-500">
             Focus on the value for attendees rather than only listing technologies.

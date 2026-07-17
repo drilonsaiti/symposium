@@ -6,6 +6,7 @@ use App\Enum\TalkType;
 use App\Http\Requests\StoreTalkRequest;
 use App\Http\Requests\UpdateTalkRequest;
 use App\Models\Talk;
+use App\Models\TalkRevision;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TalkController extends Controller
@@ -23,6 +24,7 @@ class TalkController extends Controller
             ->talks()
             ->with([
                 'conferences' => fn($query) => $query->orderBy('starts_at'),
+                'currentRevision'
             ])
             ->withCount('conferences')
             ->latest('updated_at')
@@ -47,10 +49,22 @@ class TalkController extends Controller
     {
         //
         $validated = $request->validated();
-        Talk::create([
+        $abstract = $validated['abstract'] ?? null;
+
+        unset($validated['abstract']);
+
+        $talk = Talk::create([
             ...$validated,
             'user_id' => auth()->id(),
         ]);
+
+        if ($abstract) {
+            TalkRevision::create([
+                'talk_id' => $talk->id,
+                'abstract' => $abstract,
+            ]);
+        }
+
         return redirect()->route('talks.index');
     }
 
@@ -61,7 +75,7 @@ class TalkController extends Controller
     {
         //
         $this->authorize('view', $talk);
-        $talk->load(['conferences' => fn($query) => $query->orderBy('starts_at')])
+        $talk->load(['conferences' => fn($query) => $query->orderBy('starts_at'), 'currentRevision'])
             ->loadCount('conferences')
             ->latest('updated_at');
 
@@ -88,7 +102,18 @@ class TalkController extends Controller
         $this->authorize('update', $talk);
 
         $validated = $request->validated();
+        $abstract = $validated['abstract'] ?? null;
+        unset($validated['abstract']);
+
         $talk->update($validated);
+
+        if ($abstract) {
+            TalkRevision::create([
+                'talk_id' => $talk->id,
+                'abstract' => $abstract,
+            ]);
+        }
+
         return redirect()->route('talks.index');
     }
 

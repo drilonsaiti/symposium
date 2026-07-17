@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class ConferenceFilter
 {
 
-    public static function apply(Request $request, Builder $query)
+    public static function apply(Request $request, Builder $query,string $type = 'guest')
     {
         $conference_date = $request->input('conference_date');
         $cfp_status = $request->input('cfp_status');
@@ -30,24 +30,25 @@ class ConferenceFilter
         };
 
         match ($saved) {
-            'favorited' => $query->whereNot('user_id',auth()->id())->whereHas('favoritedByUsers',
-                fn($q) => $q->where('user_id', auth()->id())),
-            'dismissed' => $query->whereNot('user_id',auth()->id())->whereHas('dismissedByUsers',
-                fn($q) => $q->where('user_id', auth()->id())),
+            'favorited' => $query->whereHas('favoritedByUsers', function ($q) {
+                $q->whereKey(auth()->id());
+            }),
+
+            'dismissed' => $query->whereHas('dismissedByUsers', fn($q) => $q->where('user_id', auth()->id())),
             default => null,
         };
+
 
         match ($view) {
             'mine' => $query->where('user_id', auth()->id()),
 
-            'favorited' => $query->whereNot('user_id',auth()->id())->whereHas('favoritedByUsers',
-                fn($q) => $q->where('user_id', auth()->id())
+            'favorited' => $query->whereHas('favoritedByUsers', function ($q) {
+                $q->whereKey(auth()->id());
+            }),
 
-            ),
+            'dismissed' => $query->whereHas('dismissedByUsers', fn($q) => $q->where('user_id', auth()->id())),
 
-            'dismissed' => $query->whereNot('user_id',auth()->id())->whereHas('dismissedByUsers',
-                fn($q) => $q->where('user_id', auth()->id())
-            ),
+            'submitted' => $query->whereHas('talks',fn($q) => $q->where('user_id', auth()->id())),
 
             default => null,
         };
@@ -56,11 +57,12 @@ class ConferenceFilter
             $query->search($term);
         }
 
-        \Log::info($view);
-        if ($saved !== 'dismissed' && $view !== 'dismissed') {
+        if ($saved !== 'dismissed' && $view !== 'dismissed' && auth()->check()) {
+            if ($type === 'authenticated' && !in_array($view, ['favorited', 'dismissed', 'mine','submitted'])) {
+                return $query->where('user_id', auth()->id())->latest('starts_at')->notDismissedBy(auth()->user());
+            }
             return $query->latest('starts_at')->notDismissedBy(auth()->user());
         }
-
 
         return $query->latest('starts_at');
     }

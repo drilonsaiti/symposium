@@ -9,18 +9,23 @@
         $submissions = $submissions ?? collect();
         $ownedConferences = $ownedConferences ?? collect();
         $upcomingConferences = $upcomingConferences ?? collect();
+         $getSubmissionStatus = function ($talk) {
+        $status = $talk->conferences->first()?->pivot?->status;
 
-        $pendingSubmissions = $submissions->filter(
-            fn ($talk) => ($talk->pivot?->status?->value ?? $talk->pivot?->status) === 'pending'
-        );
+        return $status?->value ?? $status;
+    };
 
-        $acceptedSubmissions = $submissions->filter(
-            fn ($talk) => ($talk->pivot?->status?->value ?? $talk->pivot?->status) === 'accepted'
-        );
+    $pendingSubmissions = $submissions->filter(
+        fn ($talk) => $getSubmissionStatus($talk) === 'pending'
+    );
 
-        $rejectedSubmissions = $submissions->filter(
-            fn ($talk) => ($talk->pivot?->status?->value ?? $talk->pivot?->status) === 'rejected'
-        );
+    $acceptedSubmissions = $submissions->filter(
+        fn ($talk) => $getSubmissionStatus($talk) === 'accepted'
+    );
+
+    $rejectedSubmissions = $submissions->filter(
+        fn ($talk) => $getSubmissionStatus($talk) === 'rejected'
+    );
 
         $talksUrl = \Illuminate\Support\Facades\Route::has('talks.index')
             ? route('talks.index')
@@ -40,6 +45,9 @@
 
         $conferencesUrl = \Illuminate\Support\Facades\Route::has('conferences.index')
             ? route('conferences.index')
+            : '#';
+        $conferencesSubmittedUrl = \Illuminate\Support\Facades\Route::has('conferences.index')
+            ? route('conferences.index',['view' => 'submitted'])
             : '#';
 
         $createConferenceUrl = \Illuminate\Support\Facades\Route::has('conferences.create')
@@ -241,6 +249,10 @@
                         <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
                             {{ $acceptedSubmissions->count() }} accepted
                         </span>
+
+                        <span class="rounded-full bg-red-50 px-3.5 py-1.5 text-red-700">
+    {{ $rejectedSubmissions->count() }} rejected
+</span>
                     </div>
                 </div>
 
@@ -309,7 +321,7 @@
 
                             @if(\Illuminate\Support\Facades\Route::has('conferences.index'))
                                 <a
-                                    href="{{ $conferencesUrl }}"
+                                    href="{{ $conferencesSubmittedUrl }}"
                                     class="text-sm font-semibold text-gray-600 transition hover:text-gray-950"
                                 >
                                     Browse conferences →
@@ -365,21 +377,19 @@
                             <div class="divide-y divide-gray-100">
                                 @foreach($submissions->take(5) as $talk)
                                     @php
-                                        $status = $talk->pivot?->status;
+                                        $conference = $talk->conferences->first();
+
+                                        $status = $conference?->pivot?->status;
+
                                         $statusValue = $status?->value ?? $status ?? 'pending';
-                                        $statusLabel = method_exists($status, 'label')
+
+                                        $statusLabel = $status && method_exists($status, 'label')
                                             ? $status->label()
                                             : str($statusValue)->replace('_', ' ')->title();
 
-                                        $conference = $talk->pivot?->conference
-                                            ?? $talk->conference
-                                            ?? null;
+                                        $conferenceTitle = $conference?->title ?? 'Conference submission';
 
-                                        $conferenceTitle = $conference?->title
-                                            ?? $talk->pivot?->conference_title
-                                            ?? 'Conference submission';
-
-                                        $conferenceUrl = $conference && \Illuminate\Support\Facades\Route::has('conferences.show')
+                                        $conferenceUrl = $conference && Route::has('conferences.show')
                                             ? route('conferences.show', $conference)
                                             : null;
 

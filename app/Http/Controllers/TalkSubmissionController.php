@@ -23,6 +23,7 @@ class TalkSubmissionController extends Controller
             $talk->id => [
                 'status' => TalkSubmissionStatus::PENDING,
                 'bio_id' => $validated['bio_id'] ?? null,
+                'talk_revision_id' => $talk->currentRevision?->id
             ],
         ]);
 

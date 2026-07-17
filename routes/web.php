@@ -6,6 +6,7 @@ use App\Http\Controllers\ConferenceDismissedController;
 use App\Http\Controllers\ConferenceFavoriteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TalkController;
+use App\Http\Controllers\TalkRevisionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,12 @@ Route::middleware('auth')->prefix('my')->group(function () {
     Route::patch('conferences/{conference}/talks/{talk}/status', [\App\Http\Controllers\TalkSubmissionController::class, 'changeStatus'])->name('conferences.talks.status');
     Route::resource('bios', BioController::class);
     Route::resource('conferences', \App\Http\Controllers\MyConferenceController::class)->only(['index', 'show'])->names('conferences');
+
+    Route::get('talks/{talk}/revisions', [TalkRevisionController::class, 'index'])
+        ->name('talks.revisions.index');
+
+    Route::post('talks/{talk}/revisions/{revision}/restore', [TalkRevisionController::class, 'restore'])
+        ->name('talks.revisions.restore');
 });
 
 Route::resource('conferences', ConferenceController::class)->only(['index', 'show'])->names('public.conferences');

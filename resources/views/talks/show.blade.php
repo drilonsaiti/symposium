@@ -102,7 +102,7 @@
                         </p>
 
                         <div class="mt-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-7">
-                            <p class="whitespace-pre-line text-base leading-8 text-gray-800">{{ $talk->abstract }}</p>
+                            <p class="whitespace-pre-line text-base leading-8 text-gray-800">{{ $talk->currentRevision->abstract ?? ''}}</p>
                         </div>
                     </section>
 

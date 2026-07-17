@@ -135,15 +135,19 @@ it('remove conference from dismissed', function () {
 it('change conference from favorite to dismissed', function () {
     $conference = Conference::factory()->create();
     $user = makeUser();
-    $this->actingAs($user)->post(route('conferences.favorite', $conference));
+
+    $this->actingAs($user)
+        ->post(route('conferences.favorite', $conference));
+
     $this->assertDatabaseHas('conference_user', [
         'user_id' => $user->id,
         'conference_id' => $conference->id,
         'status' => \App\Enum\ConferenceUserStatus::FAVORITED
     ]);
 
+    $this->actingAs($user)
+        ->post(route('conferences.dismissed', $conference));
 
-    $this->actingAs($user)->post(route('conferences.dismissed', $conference));
     $this->assertDatabaseHas('conference_user', [
         'user_id' => $user->id,
         'conference_id' => $conference->id,
@@ -153,8 +157,8 @@ it('change conference from favorite to dismissed', function () {
     $this->assertDatabaseMissing('conference_user', [
         'user_id' => $user->id,
         'conference_id' => $conference->id,
+        'status' => \App\Enum\ConferenceUserStatus::FAVORITED
     ]);
-
 });
 
 it('guest cannot favorite conference', function () {

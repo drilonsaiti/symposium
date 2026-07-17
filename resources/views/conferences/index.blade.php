@@ -39,49 +39,60 @@
                 @endcan
             </header>
 
-                @auth
-                    @php
-                        $activeView = request('view', 'mine');
-                    @endphp
+            @auth
+                @php
+                    $activeView = request('view', 'mine');
+                @endphp
 
-                    <div
-                        id="conference-tabs"
-                        class="mb-6 inline-flex rounded-2xl border border-gray-200 bg-white p-1.5 shadow-sm"
-                    >
-                        <button
-                            type="button"
-                            data-conference-view="mine"
-                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                <div
+                    id="conference-tabs"
+                    class="mb-6 inline-flex rounded-2xl border border-gray-200 bg-white p-1.5 shadow-sm"
+                >
+                    <button
+                        type="button"
+                        data-conference-view="mine"
+                        class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
                 {{ $activeView === 'mine'
                     ? 'bg-gray-950 text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
-                        >
-                            My conferences
-                        </button>
+                    >
+                        My conferences
+                    </button>
 
-                        <button
-                            type="button"
-                            data-conference-view="favorited"
-                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                    <button
+                        type="button"
+                        data-conference-view="submitted"
+                        class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                {{ $activeView === 'submitted'
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
+                    >
+                        Submitted talks
+                    </button>
+
+                    <button
+                        type="button"
+                        data-conference-view="favorited"
+                        class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
                 {{ $activeView === 'favorited'
                     ? 'bg-gray-950 text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
-                        >
-                            Saved conferences
-                        </button>
+                    >
+                        Saved conferences
+                    </button>
 
-                        <button
-                            type="button"
-                            data-conference-view="dismissed"
-                            class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
+                    <button
+                        type="button"
+                        data-conference-view="dismissed"
+                        class="rounded-xl px-4 py-2.5 text-sm font-semibold transition
                 {{ $activeView === 'dismissed'
                     ? 'bg-gray-950 text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950' }}"
-                        >
-                            Dismissed
-                        </button>
-                    </div>
-                @endauth
+                    >
+                        Dismissed
+                    </button>
+                </div>
+            @endauth
 
             <form method="GET"
                   id="conference-filter-form"
@@ -146,7 +157,7 @@
                     </select>
 
                     <a
-                        href="{{ route('public.conferences.index') }}"
+                        href="{{ route('conferences.index') }}"
                         class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 self-end">
                         Reset
                     </a>

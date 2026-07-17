@@ -25,9 +25,11 @@ class DashboardController extends Controller
             ->whereHas('conferences')
             ->with([
                 'conferences' => fn($query) => $query->latest('conference_talk.created_at'),
+                'currentRevision'
             ])
             ->latest()
             ->get();
+
 
         $ownedConferences = $user->conferences()
             ->latest()

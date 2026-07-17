@@ -122,7 +122,7 @@
                                 </div>
 
                                 <p class="mt-5 line-clamp-3 leading-7 text-gray-600">
-                                    {{ $talk->abstract }}
+                                    {{ Str::limit($talk->currentRevision->abstract ?? '', 200) }}
                                 </p>
 
                             </div>

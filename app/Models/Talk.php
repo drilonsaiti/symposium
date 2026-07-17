@@ -7,6 +7,8 @@ use Database\Factories\TalkFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Talk extends Model
 {
@@ -33,5 +35,15 @@ class Talk extends Model
                 'bio_id'
             ])
             ->withTimestamps();
+    }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(TalkRevision::class);
+    }
+
+    public function currentRevision(): HasOne
+    {
+        return $this->hasOne(TalkRevision::class)->latestOfMany();
     }
 }
