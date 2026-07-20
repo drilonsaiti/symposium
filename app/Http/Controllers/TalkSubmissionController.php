@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enum\TalkSubmissionStatus;
+use App\Events\SubmissionStatusChanged;
+use App\Events\TalkWasSubmitted;
 use App\Http\Requests\ChangeStatusTalkSubmissionRequest;
 use App\Http\Requests\StoreTalkSubmissionRequest;
 use App\Models\Conference;
@@ -26,6 +28,8 @@ class TalkSubmissionController extends Controller
                 'talk_revision_id' => $talk->currentRevision?->id
             ],
         ]);
+
+        event(new TalkWasSubmitted($conference, $talk));
 
         if (empty($result['attached'])) {
             return redirect()
@@ -56,6 +60,8 @@ class TalkSubmissionController extends Controller
         $conference->talks()->updateExistingPivot($talk->id, [
             'status' => $newStatus->value
         ]);
+
+        event(new SubmissionStatusChanged($conference, $talk, $newStatus));
 
         return back()->with('status', 'Talk status updated.');
     }

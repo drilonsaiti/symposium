@@ -4,6 +4,7 @@ use App\Http\Controllers\BioController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceDismissedController;
 use App\Http\Controllers\ConferenceFavoriteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TalkController;
 use App\Http\Controllers\TalkRevisionController;
@@ -31,6 +32,15 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('conferences/{conference}/dismissed ', [ConferenceDismissedController::class, 'destroy'])
         ->name('conferences.undismissed');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+        ->name('notifications.read-all');
+
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])
+        ->name('notifications.show');
 });
 
 Route::middleware('auth')->prefix('my')->group(function () {

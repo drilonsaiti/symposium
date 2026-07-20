@@ -95,6 +95,11 @@
 
             <div class="hidden shrink-0 items-center md:flex">
                 @auth
+                    <x-notification-bell
+                        :unread-count="$unreadCount"
+                        :latest-notifications="$latestNotifications"
+                    />
+
                     <div class="group relative">
 
                         <button
@@ -307,6 +312,23 @@
 
                     <div class="border-t border-gray-100 pt-2">
                         @auth
+                            <a
+                                href="{{ route('notifications.index') }}"
+                                @class([
+                                    'flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition',
+                                    'bg-gray-100 text-gray-950' => request()->routeIs('notifications.*'),
+                                    'text-gray-700 hover:bg-gray-50 hover:text-gray-950' => ! request()->routeIs('notifications.*'),
+                                ])
+                            >
+                                <span>Notifications</span>
+
+                                @if ($unreadCount > 0)
+                                    <span class="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
+            {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+        </span>
+                                @endif
+                            </a>
+
                             @if (\Illuminate\Support\Facades\Route::has('profile.edit'))
                                 <a
                                     href="{{ route('profile.edit') }}"

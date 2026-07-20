@@ -76,9 +76,14 @@
 
             <div class="hidden items-center gap-3 md:flex">
                 @auth
+                    <x-notification-bell
+                        :unread-count="$unreadCount ?? 0"
+                        :latest-notifications="$latestNotifications ?? collect()"
+                    />
+
                     <a
                         href="{{ $workspaceUrl }}"
-                        class="inline-flex items-center justify-center rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                        class="inline-flex items-center justify-center rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
                     >
                         Open workspace
                     </a>
