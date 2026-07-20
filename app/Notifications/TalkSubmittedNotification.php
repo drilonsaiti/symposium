@@ -31,7 +31,7 @@ class TalkSubmittedNotification extends Notification implements ShouldQueue
             'type' => 'talk_submitted',
             'title' => 'New talk submitted',
             'message' => "{$submitterName} submitted \"{$this->talk->title}\" to {$this->conference->title}.",
-            'url' => route('talks.show', $this->talk),
+            'url' => route('conferences.show', $this->conference) . '#submissions',
 
             'conference_id' => $this->conference->id,
             'conference_title' => $this->conference->title,

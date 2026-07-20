@@ -50,14 +50,13 @@ class AppServiceProvider extends ServiceProvider
         View::composer(['layouts.app','layouts.public.app'], function ($view) {
             $user = auth()->user();
 
-            $view->with([
-                'unreadCount' => $user
-                    ? $user->unreadNotifications()->count()
-                    : 0,
+            $latestNotifications = $user
+                ? $user->notifications()->latest()->limit(5)->get()
+                : collect();
 
-                'latestNotifications' => $user
-                    ? $user->notifications()->latest()->limit(5)->get()
-                    : collect(),
+            $view->with([
+                'unreadCount' => $latestNotifications->whereNull('read_at')->count(),
+                'latestNotifications' => $latestNotifications,
             ]);
         });
     }

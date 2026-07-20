@@ -19,7 +19,7 @@ class TalkPolicy
 
     public function view(User $user, Talk $talk)
     {
-        return true;
+        return $user->id === $talk->user_id;
     }
 
     public function create(User $user)
