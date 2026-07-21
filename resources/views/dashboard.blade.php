@@ -9,23 +9,9 @@
         $submissions = $submissions ?? collect();
         $ownedConferences = $ownedConferences ?? collect();
         $upcomingConferences = $upcomingConferences ?? collect();
-         $getSubmissionStatus = function ($talk) {
-        $status = $talk->conferences->first()?->pivot?->status;
 
-        return $status?->value ?? $status;
-    };
 
-    $pendingSubmissions = $submissions->filter(
-        fn ($talk) => $getSubmissionStatus($talk) === 'pending'
-    );
 
-    $acceptedSubmissions = $submissions->filter(
-        fn ($talk) => $getSubmissionStatus($talk) === 'accepted'
-    );
-
-    $rejectedSubmissions = $submissions->filter(
-        fn ($talk) => $getSubmissionStatus($talk) === 'rejected'
-    );
 
         $talksUrl = \Illuminate\Support\Facades\Route::has('talks.index')
             ? route('talks.index')
@@ -516,7 +502,7 @@
                                         </div>
 
                                         <p class="mt-4 line-clamp-3 text-sm leading-6 text-gray-500">
-                                            {{ $talk->abstract }}
+                                            {{ $talk->currentRevision?->abstract }}
                                         </p>
 
                                         @if(\Illuminate\Support\Facades\Route::has('talks.show'))
