@@ -6,6 +6,7 @@ use App\Http\Controllers\ConferenceDismissedController;
 use App\Http\Controllers\ConferenceFavoriteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TalkController;
 use App\Http\Controllers\TalkRevisionController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/notifications/{notification}', [NotificationController::class, 'show'])
         ->name('notifications.show');
+
+    Route::get('/search/live', [SearchController::class, 'live'])
+        ->name('search.live');
 });
 
 Route::middleware('auth')->prefix('my')->group(function () {

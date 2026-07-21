@@ -4,16 +4,18 @@ namespace App\Models;
 
 use App\Enum\TalkType;
 use Database\Factories\TalkFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
 
 class Talk extends Model
 {
     /** @use HasFactory<TalkFactory> */
-    use HasFactory;
+    use HasFactory,Searchable;
 
     protected $guarded = ['id'];
 
@@ -45,5 +47,21 @@ class Talk extends Model
     public function currentRevision(): HasOne
     {
         return $this->hasOne(TalkRevision::class)->latestOfMany();
+    }
+
+    public function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with('currentRevision');
+    }
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'abstract' => $this->currentRevision?->abstract,
+            'type' => $this->type->value,
+            'user_id' => $this->user_id,
+        ];
     }
 }

@@ -41,6 +41,8 @@
                     </span>
             </a>
 
+
+
             <div class="hidden flex-1 items-center justify-center gap-1 md:flex">
 
                 <a
@@ -92,6 +94,27 @@
                 @endif
 
             </div>
+
+            <button
+                type="button"
+                id="nav-search-trigger"
+                onclick="openSearchModal()"
+                aria-label="Search talks, bios..."
+                class="hidden items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-400 transition hover:border-gray-400 md:flex"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path stroke-linecap="round" d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button>
 
             <div class="hidden shrink-0 items-center md:flex">
                 @auth
@@ -248,6 +271,28 @@
                 <div
                     class="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
 
+                    <div class="border-b border-gray-100 px-3 py-3 md:hidden">
+                        <button
+                            type="button"
+                            onclick="openSearchModal()"
+                            class="flex w-full items-center gap-2 rounded-xl border border-gray-300 px-3 py-2.5 text-sm text-gray-500"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                class="h-4 w-4 shrink-0"
+                                aria-hidden="true"
+                            >
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path stroke-linecap="round" d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            Search talks, bios...
+                        </button>
+                    </div>
+
                     @auth
                         <div class="border-b border-gray-100 px-3 py-3">
                             <div class="flex items-center gap-3">
@@ -382,6 +427,8 @@
     </div>
 </nav>
 
+<x-search-modal />
+
 <main>
     @yield('content')
 </main>
@@ -399,7 +446,148 @@
     </div>
 </footer>
 
+@push('scripts')
+    <script>
+        (function () {
+            const modal = document.getElementById('search-modal');
+            const input = document.getElementById('search-modal-input');
+            const body = document.getElementById('search-modal-body');
+            const subtitle = document.getElementById('search-modal-subtitle');
+
+            if (!modal || !input || !body) {
+                return;
+            }
+
+            let debounceTimer;
+
+            const escapeHtml = (str) => String(str).replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+            }[c]));
+
+            const emptyStateHtml = `
+                <div class="py-12 text-center">
+                    <h2 class="font-semibold text-gray-950">Start searching</h2>
+                    <p class="mt-1 text-sm text-gray-500">Search through your talks and speaker bios.</p>
+                </div>
+            `;
+
+            const noResultsHtml = `
+                <div class="py-12 text-center">
+                    <h2 class="font-semibold text-gray-950">No results found</h2>
+                    <p class="mt-1 text-sm text-gray-500">Try another keyword or check the spelling.</p>
+                </div>
+            `;
+
+            window.openSearchModal = function () {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                input.value = '';
+                input.focus();
+                subtitle.classList.add('hidden');
+                body.innerHTML = emptyStateHtml;
+            };
+
+            window.closeSearchModal = function () {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            };
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeSearchModal();
+                }
+
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    openSearchModal();
+                }
+            });
+
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                const term = input.value.trim();
+
+                if (term.length < 2) {
+                    subtitle.classList.add('hidden');
+                    body.innerHTML = emptyStateHtml;
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => runSearch(term), 250);
+            });
+
+            async function runSearch(term) {
+                const res = await fetch(`/search/live?term=${encodeURIComponent(term)}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await res.json();
+                renderResults(term, data);
+            }
+
+            function card(url, avatarHtml, title, snippet) {
+                return `
+                    <a href="${url}" class="group block rounded-xl border border-gray-200 p-4 transition hover:border-gray-300 hover:bg-gray-50">
+                        <div class="flex items-start gap-4">
+                            ${avatarHtml}
+                            <div class="min-w-0 flex-1">
+                                <h3 class="truncate font-semibold text-gray-950">${escapeHtml(title)}</h3>
+                                ${snippet ? `<p class="mt-1 line-clamp-2 text-sm leading-6 text-gray-500">${escapeHtml(snippet)}</p>` : ''}
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="mt-2 h-4 w-4 shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-700" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L10.94 10 7.23 6.29a.75.75 0 111.06-1.06l4.24 4.24a.75.75 0 010 1.06l-4.24 4.24a.75.75 0 01-1.08 0z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </a>
+                `;
+            }
+
+            function renderResults(term, { talks, bios }) {
+                subtitle.textContent = `Results for "${term}"`;
+                subtitle.classList.remove('hidden');
+
+                if (talks.length === 0 && bios.length === 0) {
+                    body.innerHTML = noResultsHtml;
+                    return;
+                }
+
+                let html = '';
+
+                if (talks.length > 0) {
+                    const talkAvatar = `<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-950 text-sm font-bold text-white">T</div>`;
+                    html += `
+                        <section>
+                            <div class="mb-3 flex items-center justify-between">
+                                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500">Talks</h2>
+                                <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-600">${talks.length}</span>
+                            </div>
+                            <div class="space-y-2">
+                                ${talks.map(t => card(t.url, talkAvatar, t.title, t.snippet)).join('')}
+                            </div>
+                        </section>
+                    `;
+                }
+
+                if (bios.length > 0) {
+                    html += `
+                        <section class="${talks.length > 0 ? 'mt-8' : ''}">
+                            <div class="mb-3 flex items-center justify-between">
+                                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500">Bios</h2>
+                                <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-600">${bios.length}</span>
+                            </div>
+                            <div class="space-y-2">
+                                ${bios.map(b => card(b.url, `<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-700">${escapeHtml((b.nickname || 'B').charAt(0).toUpperCase())}</div>`, b.nickname, b.snippet)).join('')}
+                            </div>
+                        </section>
+                    `;
+                }
+
+                body.innerHTML = html;
+            }
+        })();
+    </script>
+@endpush
 @stack('scripts')
 </body>
 </html>
-
