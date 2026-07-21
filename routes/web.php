@@ -46,8 +46,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('my')->group(function () {
     Route::resource('talks', TalkController::class);
     Route::resource('conferences', ConferenceController::class)->except(['index', 'show']);
-    Route::post('conferences/{conference}/talks/{talk}', [\App\Http\Controllers\TalkSubmissionController::class, 'store'])->name('conferences.talks.submit');
-    Route::patch('conferences/{conference}/talks/{talk}/status', [\App\Http\Controllers\TalkSubmissionController::class, 'changeStatus'])->name('conferences.talks.status');
+    Route::post('conferences/{conference}/talks/{talk}', [\App\Http\Controllers\TalkSubmissionController::class, 'store'])
+        ->middleware('throttle:talk-submission')
+        ->name('conferences.talks.submit');
+    Route::patch('conferences/{conference}/talks/{talk}/status', [\App\Http\Controllers\TalkSubmissionController::class, 'changeStatus'])
+        ->middleware('throttle:status-change')
+        ->name('conferences.talks.status');
     Route::resource('bios', BioController::class);
     Route::resource('conferences', \App\Http\Controllers\MyConferenceController::class)->only(['index', 'show'])->names('conferences');
 
@@ -55,6 +59,7 @@ Route::middleware('auth')->prefix('my')->group(function () {
         ->name('talks.revisions.index');
 
     Route::post('talks/{talk}/revisions/{revision}/restore', [TalkRevisionController::class, 'restore'])
+        ->middleware('throttle:restore')
         ->name('talks.revisions.restore');
 });
 

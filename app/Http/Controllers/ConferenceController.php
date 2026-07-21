@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetConferences;
 use App\Enum\TalkSubmissionStatus;
 use App\Filters\ConferenceFilter;
 use App\Http\Requests\StoreConferenceRequest;
@@ -19,26 +20,21 @@ class ConferenceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, GetConferences $getConferences)
     {
-        //
-        $query = Conference::query();
-
-        if ($user = auth()->user()) {
-            $query->withExists([
-                'favoritedByUsers as is_favorited' => fn(Builder $q) => $q->where('user_id', $user->id),
-                'dismissedByUsers as is_dismissed' => fn(Builder $q) => $q->where('user_id', $user->id),
-            ]);
-        }
-        $conferences = ConferenceFilter::apply($request, $query)
-            ->paginate(12)
-            ->withQueryString();
+        $conferences = $getConferences->handle($request);
 
         if ($request->ajax()) {
-            return view('conferences.public.partials.list', compact('conferences'));
+            return view(
+                'conferences.public.partials.list',
+                compact('conferences')
+            );
         }
 
-        return view('conferences.public.index', compact('conferences'));
+        return view(
+            'conferences.public.index',
+            compact('conferences')
+        );
     }
 
     /**

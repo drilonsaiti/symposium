@@ -12,8 +12,11 @@ use App\Models\Talk;
 use App\Policies\BioPolicy;
 use App\Policies\ConferencePolicy;
 use App\Policies\TalkPolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -58,6 +61,21 @@ class AppServiceProvider extends ServiceProvider
                 'unreadCount' => $latestNotifications->whereNull('read_at')->count(),
                 'latestNotifications' => $latestNotifications,
             ]);
+        });
+
+        RateLimiter::for('restore',function (Request $request) {
+            return Limit::perMinute(5)
+                ->by($request->user()->id);
+        });
+
+        RateLimiter::for('talk-submission',function (Request $request) {
+            return Limit::perMinute(5)
+                ->by($request->user()->id);
+        });
+
+        RateLimiter::for('status-change',function (Request $request) {
+            return Limit::perMinute(20)
+                ->by($request->user()->id);
         });
     }
 }

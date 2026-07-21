@@ -2,12 +2,24 @@
 
 namespace Talk;
 
+use App\Enum\TalkSubmissionStatus;
 use App\Enum\TalkType;
 use App\Models\Conference;
 use App\Models\Talk;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Events\TalkWasSubmitted;
+use App\Events\SubmissionStatusChanged;
+use Illuminate\Support\Facades\Event;
+
+beforeEach(function () {
+    RateLimiter::clear('restore');
+    RateLimiter::clear('talk-submission');
+    RateLimiter::clear('status-change');
+});
 
 uses(RefreshDatabase::class);
+
 
 it('authenticated user sees only their own talks', function () {
     $this->withoutExceptionHandling();
@@ -371,4 +383,119 @@ it('non-owner cannot restore a revision', function () {
         ->assertForbidden();
 
     expect($talk->fresh()->revisions)->toHaveCount(2);
+});
+
+it('dispatches TalkWasSubmitted event when a talk is submitted', function () {
+    Event::fake([TalkWasSubmitted::class]);
+
+    $talkUser = makeUser();
+    $conferenceUser = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $conferenceUser->id,
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $talkUser->id,
+    ]);
+
+    $this->actingAs($talkUser)
+        ->post(route('conferences.talks.submit', [
+            'conference' => $conference,
+            'talk' => $talk,
+        ]));
+
+    Event::assertDispatched(
+        TalkWasSubmitted::class,
+        function (TalkWasSubmitted $event) use ($conference, $talk) {
+            return $event->conference->is($conference)
+                && $event->talk->is($talk);
+        }
+    );
+});
+
+it('dispatches SubmissionStatusChanged event when status changes', function () {
+    Event::fake([SubmissionStatusChanged::class]);
+
+    $talkUser = makeUser();
+    $conferenceUser = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $conferenceUser->id,
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $talkUser->id,
+    ]);
+
+    $this->actingAs($talkUser)->post(
+        route('conferences.talks.submit', [
+            'conference' => $conference,
+            'talk' => $talk,
+        ])
+    );
+
+    $this->actingAs($conferenceUser)
+        ->patch(
+            route('conferences.talks.status', [$conference, $talk]),
+            ['status' => 'accepted']
+        );
+
+    Event::assertDispatched(
+        SubmissionStatusChanged::class,
+        function (SubmissionStatusChanged $event) use ($conference, $talk) {
+            return $event->conference->is($conference)
+                && $event->talk->is($talk)
+                && $event->status === TalkSubmissionStatus::ACCEPTED;
+        }
+    );
+});
+
+it('rate limits revision restores', function () {
+    $user = makeUser();
+
+    $talk = Talk::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $revision = $talk->revisions()->create([
+        'abstract' => 'Old version',
+    ]);
+
+    $request = fn () => $this->actingAs($user)
+        ->post(route('talks.revisions.restore', [
+            'talk' => $talk,
+            'revision' => $revision,
+        ]));
+
+    foreach (range(1, 5) as $i) {
+        $request()->assertRedirect();
+    }
+
+    $request()->assertStatus(429);
+});
+
+it('rate limits talk submissions', function () {
+    $talkUser = makeUser();
+    $conferenceUser = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $conferenceUser->id,
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $talkUser->id,
+    ]);
+
+    $request = fn () => $this->actingAs($talkUser)
+        ->post(route('conferences.talks.submit', [
+            'conference' => $conference,
+            'talk' => $talk,
+        ]));
+
+    foreach (range(1, 5) as $i) {
+        $request()->assertRedirect();
+    }
+
+    $request()->assertStatus(429);
 });

@@ -29,13 +29,13 @@ class TalkSubmissionController extends Controller
             ],
         ]);
 
-        event(new TalkWasSubmitted($conference, $talk));
-
         if (empty($result['attached'])) {
             return redirect()
                 ->route('conferences.show', $conference)
                 ->with('status', 'Talk was already submitted.');
         }
+
+        event(new TalkWasSubmitted($conference, $talk));
 
         return redirect()
             ->route('conferences.show', $conference)

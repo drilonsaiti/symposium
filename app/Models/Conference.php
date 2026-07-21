@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Cache;
 
 class Conference extends Model
 {
@@ -23,6 +24,21 @@ class Conference extends Model
         'cfp_starts_at' => 'date',
         'cfp_ends_at' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function () {
+            Cache::tags(['conferences'])->flush();
+        });
+
+        static::updated(function () {
+            Cache::tags(['conferences'])->flush();
+        });
+
+        static::deleted(function () {
+            Cache::tags(['conferences'])->flush();
+        });
+    }
 
     public function user(): BelongsTo
     {
