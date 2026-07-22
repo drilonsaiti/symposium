@@ -36,29 +36,28 @@
                 class="space-y-5"
             >
                 @csrf
-
                 <div>
                     <label
-                        for="email"
+                        for="login"
                         class="block text-sm font-semibold text-gray-900"
                     >
-                        {{ __('Email address') }}
+                        {{ __('Email address or username') }}
                     </label>
 
                     <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
+                        id="login"
+                        type="text"
+                        name="login"
+                        value="{{ old('login') }}"
                         required
                         autofocus
                         autocomplete="username"
-                        placeholder="you@example.com"
+                        placeholder="you@example.com or username"
                         class="mt-2 block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-950 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500"
                     >
 
                     <x-input-error
-                        :messages="$errors->get('email')"
+                        :messages="$errors->get('login')"
                         class="mt-2"
                     />
                 </div>

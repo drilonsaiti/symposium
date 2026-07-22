@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BioController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceDismissedController;
@@ -16,6 +17,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/check-username', [RegisteredUserController::class, 'checkUsername'])
+    ->name('username.check');
+Route::get('/check-email', [RegisteredUserController::class, 'checkEmail'])
+    ->name('email.check');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

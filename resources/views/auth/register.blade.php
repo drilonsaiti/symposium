@@ -61,6 +61,35 @@
 
                 <div>
                     <label
+                        for="username"
+                        class="block text-sm font-semibold text-gray-900"
+                    >
+                        {{ __('Username') }}
+                    </label>
+
+                    <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        value="{{ old('username') }}"
+                        required
+                        autofocus
+                        autocomplete="username"
+                        placeholder="Username"
+                        class="mt-2 block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-950 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500"
+                    >
+
+                    <p id="username-feedback" class="mt-2 text-xs leading-5"></p>
+
+
+                    <x-input-error
+                        :messages="$errors->get('username')"
+                        class="mt-2"
+                    />
+                </div>
+
+                <div>
+                    <label
                         for="email"
                         class="block text-sm font-semibold text-gray-900"
                     >
@@ -77,6 +106,8 @@
                         placeholder="you@example.com"
                         class="mt-2 block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-950 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500"
                     >
+
+                    <p id="email-feedback" class="mt-2 text-xs leading-5"></p>
 
                     <x-input-error
                         :messages="$errors->get('email')"
@@ -164,6 +195,67 @@
             By creating an account, you agree to use the platform responsibly.
         </p>
     </div>
+
+
+        <script>
+            const usernameInput = document.getElementById('username');
+            const feedback = document.getElementById('username-feedback');
+            let debounceTimer;
+
+            usernameInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                const value = usernameInput.value.trim();
+
+                if (value.length < 3) {
+                    feedback.textContent = '';
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/check-username?username=${encodeURIComponent(value)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            feedback.textContent = data.message;
+                            feedback.classList.toggle('text-red-500', !data.available);
+                            feedback.classList.toggle('text-green-600', data.available);
+                        })
+                        .catch(() => {
+                            feedback.textContent = '';
+                        });
+                }, 400);
+            });
+        </script>
+
+    <script>
+        const emailInput = document.getElementById('email');
+        const emailFeedback = document.getElementById('email-feedback');
+        let emailDebounceTimer;
+
+        emailInput.addEventListener('input', () => {
+            clearTimeout(emailDebounceTimer);
+            const value = emailInput.value.trim();
+
+            const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+            if (!isValidFormat) {
+                emailFeedback.textContent = '';
+                return;
+            }
+
+            emailDebounceTimer = setTimeout(() => {
+                fetch(`/check-email?email=${encodeURIComponent(value)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        emailFeedback.textContent = data.message;
+                        emailFeedback.classList.toggle('text-red-500', !data.available);
+                        emailFeedback.classList.toggle('text-green-600', data.available);
+                    })
+                    .catch(() => {
+                        emailFeedback.textContent = '';
+                    });
+            }, 700);
+        });
+    </script>
 
 
 </x-guest-layout>
