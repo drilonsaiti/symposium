@@ -67,4 +67,11 @@ class User extends Authenticatable
         return $this->conferencesStates()
             ->wherePivot('status',ConferenceUserStatus::DISMISSED);
     }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('username', $value)
+            ->orWhere('id', $value)
+            ->firstOrFail();
+    }
 }

@@ -49,7 +49,13 @@ function something()
     // ..
 }
 
-function makeUser(): \App\Models\User
+function makeUser(?string $username = null): \App\Models\User
 {
-    return \App\Models\User::factory()->create();
+    if (is_null($username)) {
+        return \App\Models\User::factory()->create();
+    }
+    return \App\Models\User::factory()->create([
+        'username' => $username,
+    ]);
+
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\ConferenceFavoriteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SpeakerProfileController;
 use App\Http\Controllers\TalkController;
 use App\Http\Controllers\TalkRevisionController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,8 @@ Route::get('/check-username', [RegisteredUserController::class, 'checkUsername']
     ->name('username.check');
 Route::get('/check-email', [RegisteredUserController::class, 'checkEmail'])
     ->name('email.check');
+Route::get('speakers/{user}', [SpeakerProfileController::class, 'show'])
+    ->name('speakers.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
