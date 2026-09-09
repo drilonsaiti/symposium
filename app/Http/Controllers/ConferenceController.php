@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\GetConferences;
+use App\Actions\GetConferenceDTO;
 use App\Enum\TalkSubmissionStatus;
 use App\Filters\ConferenceFilter;
 use App\Http\Requests\StoreConferenceRequest;
@@ -64,67 +65,14 @@ class ConferenceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Conference $conference)
+    public function show(Conference $conference, GetConferenceDTO $action)
     {
-        $conference->load('user');
-
         $user = auth()->user();
         $isOwner = $user?->is($conference->user) ?? false;
         $canViewSubmissions = $user?->can('viewSubmissions', $conference) ?? false;
-        $allTalks = $conference->talks()
-            ->with('author')
-            ->get();
+        $data = $action->handle($conference, $user,$isOwner,$canViewSubmissions);
 
-        $acceptedTalks = $allTalks->filter(fn($t) => $t->pivot->status === TalkSubmissionStatus::ACCEPTED);
-
-        $submissions = $canViewSubmissions ? $allTalks : collect();
-
-        $talkSubmissionStatuses = $canViewSubmissions
-            ? TalkSubmissionStatus::cases()
-            : [];
-
-        $mySubmissions = collect();
-        $availableTalks = collect();
-        $bios = collect();
-        $biosIds = $allTalks
-            ->pluck('pivot.bio_id')
-            ->filter()
-            ->unique();
-        $submissionBios = Bio::whereIn('id', $biosIds)
-            ->get()->keyBy('id');
-
-
-        if ($user && !$isOwner) {
-            $bios = $user->bios()->latest()->get();
-
-            $mySubmissions = $allTalks->filter(fn($t) => $t->user_id === $user?->id);
-
-            $availableTalks = $user->talks()
-                ->whereNotIn('talks.id', $mySubmissions->pluck('id'))
-                ->latest()
-                ->get();
-
-        }
-
-        $today = now()->startOfDay();
-        $cfpStartsAt = $conference->cfp_starts_at->copy()->startOfDay();
-        $cfpEndsAt = $conference->cfp_ends_at->copy()->startOfDay();
-
-        $cfpIsOpen = $today->gte($cfpStartsAt)
-            && $today->lte($cfpEndsAt);
-
-        return view('conferences.public.show', compact(
-            'conference',
-            'acceptedTalks',
-            'submissions',
-            'talkSubmissionStatuses',
-            'mySubmissions',
-            'availableTalks',
-            'bios',
-            'submissionBios',
-            'isOwner',
-            'cfpIsOpen',
-        ));
+        return view('conferences.public.show', $data->toArray());
     }
 
     /**

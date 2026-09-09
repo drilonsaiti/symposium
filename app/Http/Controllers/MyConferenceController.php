@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetConferenceDTO;
 use App\Enum\TalkSubmissionStatus;
 use App\Filters\ConferenceFilter;
 use App\Models\Bio;
@@ -34,55 +35,14 @@ class MyConferenceController extends Controller
         return view('conferences.index', compact('conferences'));
     }
 
-    public function show(Conference $conference)
+    public function show(Conference $conference, GetConferenceDTO $action)
     {
-        $conference->load('user');
-
         $user = auth()->user();
         $isOwner = $user?->is($conference->user) ?? false;
         $canViewSubmissions = $user?->can('viewSubmissions', $conference) ?? false;
-        $allTalks = $conference->talks()
-            ->with('author')
-            ->get();
+        $data = $action->handle($conference, $user,$isOwner,$canViewSubmissions);
 
-        $acceptedTalks = $allTalks->filter(fn($t) => $t->pivot->status === TalkSubmissionStatus::ACCEPTED);
-
-        $submissions = $canViewSubmissions ? $allTalks : collect();
-
-        $talkSubmissionStatuses = $canViewSubmissions
-            ? TalkSubmissionStatus::cases()
-            : [];
-
-        $mySubmissions = collect();
-        $availableTalks = collect();
-        $bios = collect();
-        $biosIds = $allTalks
-            ->pluck('pivot.bio_id')
-            ->filter()
-            ->unique();
-        $submissionBios = Bio::whereIn('id', $biosIds)
-            ->get()->keyBy('id');
-
-
-        $today = now()->startOfDay();
-        $cfpStartsAt = $conference->cfp_starts_at->copy()->startOfDay();
-        $cfpEndsAt = $conference->cfp_ends_at->copy()->startOfDay();
-
-        $cfpIsOpen = $today->gte($cfpStartsAt)
-            && $today->lte($cfpEndsAt);
-
-        return view('conferences.show', compact(
-            'conference',
-            'acceptedTalks',
-            'submissions',
-            'talkSubmissionStatuses',
-            'mySubmissions',
-            'availableTalks',
-            'bios',
-            'submissionBios',
-            'isOwner',
-            'cfpIsOpen',
-        ));
+        return view('conferences.show', $data->toArray());
     }
 
 }

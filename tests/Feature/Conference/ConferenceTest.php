@@ -366,3 +366,22 @@ it('does not use the conference cache for authenticated users', function () {
 
     Cache::shouldNotHaveReceived('tags');
 });
+
+it('shows the owner their talks that have not been submitted to the conference', function () {
+    $owner = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('conferences.show', $conference))
+        ->assertOk()
+        ->assertViewHas('availableTalks', function ($availableTalks) use ($talk) {
+            return $availableTalks->contains('id', $talk->id);
+        });
+});
