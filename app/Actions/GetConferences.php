@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Filters\ConferenceFilter;
 use App\Models\Conference;
+use App\Support\ConferenceCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -38,7 +39,7 @@ final class GetConferences
 
         $cacheKey = $this->cacheKey($request);
 
-        return Cache::tags(['conferences'])->remember(
+        return ConferenceCache::remember(
             $cacheKey,
             now()->addMinutes(10),
             fn () => $query

@@ -30,6 +30,8 @@ class StoreTalkRequest extends FormRequest
             'type' => ['required', Rule::enum(TalkType::class)],
             'abstract' => ['nullable', 'string'],
             'organizer_notes' => ['nullable', 'string'],
+            'tags' => ['nullable', 'array','max:5'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ];
     }
 }

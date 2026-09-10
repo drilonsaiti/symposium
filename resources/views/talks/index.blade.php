@@ -38,6 +38,28 @@
                 @endcan
             </header>
 
+                <div class="mt-8 flex flex-wrap gap-2">
+                    <a
+                        href="{{ route('talks.index') }}"
+                        class="rounded-full px-3 py-1.5 text-sm font-semibold
+            {{ request('tag') ? 'bg-gray-100 text-gray-700' : 'bg-gray-950 text-white' }}"
+                    >
+                        All
+                    </a>
+
+                    @foreach ($tags as $tag)
+                        <a
+                            href="{{ route('talks.index', ['tag' => $tag->slug]) }}"
+                            class="rounded-full px-3 py-1.5 text-sm font-semibold
+                {{ request('tag') === $tag->slug
+                    ? 'bg-gray-950 text-white'
+                    : 'bg-gray-100 text-gray-700' }}"
+                        >
+                            {{ $tag->name }}
+                        </a>
+                    @endforeach
+                </div>
+
             @if ($talks->isEmpty())
                 <section
                     class="mt-10 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
@@ -114,6 +136,19 @@
                                                 {{ $talk->length }} minutes
                                             </span>
                                         </div>
+
+                                        @if ($talk->tags->isNotEmpty())
+                                            <div class="mt-3 flex flex-wrap gap-2">
+                                                @foreach ($talk->tags as $tag)
+                                                    <a
+                                                        href="{{ route('talks.index', ['tag' => $tag->slug]) }}"
+                                                        class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-200"
+                                                    >
+                                                        {{ $tag->name }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <p class="shrink-0 text-xs font-medium text-gray-400">

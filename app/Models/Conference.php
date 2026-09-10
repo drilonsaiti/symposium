@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enum\ConferenceUserStatus;
+use App\Support\ConferenceCache;
 use Database\Factories\ConferenceFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\Cache;
 
 class Conference extends Model
@@ -28,15 +30,19 @@ class Conference extends Model
     protected static function booted(): void
     {
         static::created(function () {
-            Cache::tags(['conferences'])->flush();
+            ConferenceCache::flush();
         });
 
         static::updated(function () {
-            Cache::tags(['conferences'])->flush();
+            ConferenceCache::flush();
         });
 
+        static::deleting(
+            fn ($conference) => $conference->tags()->detach()
+        );
+
         static::deleted(function () {
-            Cache::tags(['conferences'])->flush();
+            ConferenceCache::flush();
         });
     }
 
@@ -61,6 +67,11 @@ class Conference extends Model
                 'bio_id'
             ])
             ->withTimestamps();
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function scopeUpcoming($query)

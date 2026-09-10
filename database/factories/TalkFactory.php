@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enum\TalkType;
+use App\Models\Tag;
 use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,6 +26,7 @@ class TalkFactory extends Factory
             'type' => fake()->randomElement(TalkType::cases())->value,
             'length' => rand(15, 60),
             'organizer_notes' => fake()->paragraph(),
+            'tags' => Tag::factory()->count(rand(1, 5))->create()->pluck('id')->toArray(),
         ];
     }
 }

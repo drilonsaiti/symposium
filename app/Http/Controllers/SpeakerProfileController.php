@@ -18,8 +18,9 @@ class SpeakerProfileController extends Controller
             ->whereHas('conferences', fn ($q) =>
             $q->where('conference_talk.status', TalkSubmissionStatus::ACCEPTED->value)
             )
-            ->with(['conferences' => fn ($q) =>
-            $q->wherePivot('status', TalkSubmissionStatus::ACCEPTED)
+            ->with([
+                'conferences' => fn ($q) => $q->wherePivot('status', TalkSubmissionStatus::ACCEPTED),
+                'tags',
             ])
             ->get();
 
@@ -42,7 +43,7 @@ class SpeakerProfileController extends Controller
 
         $availableTalks = Talk::where('user_id', $user->id)
             ->doesntHave('conferences')
-            ->with('currentRevision')
+            ->with('currentRevision','tags')
             ->get();
 
         $stats = [

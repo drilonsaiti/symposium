@@ -385,3 +385,26 @@ it('shows the owner their talks that have not been submitted to the conference',
             return $availableTalks->contains('id', $talk->id);
         });
 });
+
+it('rejects a javascript url when creating a conference', function () {
+    $user = makeUser();
+
+    $response = $this->actingAs($user)->post(route('conferences.store'), [
+        'title' => 'Laravel Conference',
+        'location' => 'Skopje',
+        'description' => 'A conference about Laravel.',
+        'url' => 'javascript:alert(1)',
+        'starts_at' => now()->addMonth(),
+        'ends_at' => now()->addMonth()->addDay(),
+        'cfp_starts_at' => now()->addWeek(),
+        'cfp_ends_at' => now()->addWeeks(2),
+    ]);
+
+    $response
+        ->assertSessionHasErrors('url')
+        ->assertStatus(302);
+
+    $this->assertDatabaseMissing('conferences', [
+        'url' => 'javascript:alert(1)',
+    ]);
+});

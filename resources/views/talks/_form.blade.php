@@ -177,6 +177,47 @@
         </p>
     </div>
 
+    <div>
+        <label class="block text-sm font-semibold text-gray-900">
+            Tags
+            <span class="font-normal text-gray-500">optional, max 5</span>
+        </label>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+            @foreach ($tags as $tag)
+                <label class="cursor-pointer">
+                    <input
+                        type="checkbox"
+                        name="tags[]"
+                        value="{{ $tag->id }}"
+                        class="peer sr-only"
+                        @checked(
+                            in_array(
+                                $tag->id,
+                                old(
+                                    'tags',
+                                    isset($talk)
+                                        ? $talk->tags->pluck('id')->all()
+                                        : []
+                                )
+                            )
+                        )
+                    >
+
+                    <span
+                        class="inline-flex rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition peer-checked:border-gray-950 peer-checked:bg-gray-950 peer-checked:text-white"
+                    >
+                    {{ $tag->name }}
+                </span>
+                </label>
+            @endforeach
+        </div>
+
+        <p class="mt-2 text-sm text-gray-500">
+            Choose up to 5 topics that best describe this talk.
+        </p>
+    </div>
+
     <div class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-7 sm:flex-row sm:items-center sm:justify-end">
         <a
             href="{{ isset($talk) && $talk->exists
@@ -202,19 +243,38 @@
         const abstract = document.getElementById('abstract');
         const wordCount = document.getElementById('abstract-word-count');
 
-        if (!abstract || !wordCount) {
-            return;
+        if (abstract && wordCount) {
+            const updateWordCount = () => {
+                const value = abstract.value.trim();
+                const count = value ? value.split(/\s+/).length : 0;
+
+                wordCount.textContent =
+                    `${count} ${count === 1 ? 'word' : 'words'}`;
+            };
+
+            abstract.addEventListener('input', updateWordCount);
+            updateWordCount();
         }
 
-        const updateWordCount = () => {
-            const value = abstract.value.trim();
-            const count = value ? value.split(/\s+/).length : 0;
+        const tagCheckboxes = document.querySelectorAll(
+            'input[name="tags[]"]'
+        );
 
-            wordCount.textContent = `${count} ${count === 1 ? 'word' : 'words'}`;
+        const updateTags = () => {
+            const selected = [...tagCheckboxes].filter(
+                checkbox => checkbox.checked
+            );
+
+            tagCheckboxes.forEach(checkbox => {
+                checkbox.disabled =
+                    selected.length >= 5 && !checkbox.checked;
+            });
         };
 
-        abstract.addEventListener('input', updateWordCount);
+        tagCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTags);
+        });
 
-        updateWordCount();
+        updateTags();
     });
 </script>

@@ -64,6 +64,18 @@
                                             <h3 class="mt-1.5 text-xl font-bold tracking-tight text-gray-950">
                                                 {{ $talk->title }}
                                             </h3>
+
+                                            @if ($talk->tags->isNotEmpty())
+                                                <div class="mt-3 flex flex-wrap gap-2">
+                                                    @foreach ($talk->tags as $tag)
+                                                        <span
+                                                            class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600"
+                                                        >
+                {{ $tag->name }}
+            </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         </div>
 
                                         <span class="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -101,9 +113,21 @@
                 <div class="grid gap-4 sm:grid-cols-2">
                     @foreach($availableTalks as $talk)
                         <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-xl shadow-gray-950/5 transition hover:shadow-2xl hover:shadow-gray-950/10">
-                            <h3 class="text-base font-bold tracking-tight text-gray-950">
+                            <h3 class="mt-1.5 text-xl font-bold tracking-tight text-gray-950">
                                 {{ $talk->title }}
                             </h3>
+
+                            @if ($talk->tags->isNotEmpty())
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach ($talk->tags as $tag)
+                                        <span
+                                            class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600"
+                                        >
+                {{ $tag->name }}
+            </span>
+                                    @endforeach
+                                </div>
+                            @endif
 
                             @if($talk->currentRevision)
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-600">

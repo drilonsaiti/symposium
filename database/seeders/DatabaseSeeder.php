@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+    /*use WithoutModelEvents;*/
 
     /**
      * Seed the application's database.
@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()
+        /*User::factory()
             ->has(
                 Talk::factory()
                     ->count(5)
@@ -34,6 +34,10 @@ class DatabaseSeeder extends Seeder
                 'email' => 'test@example.com',
             ]);
 
-        Conference::factory()->count(5)->create();
+        Conference::factory()->count(5)->create();*/
+
+        $this->call([
+            TagSeeder::class,
+        ]);
     }
 }

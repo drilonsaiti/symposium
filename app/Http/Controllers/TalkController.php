@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetTalks;
 use App\Enum\TalkType;
 use App\Http\Requests\StoreTalkRequest;
 use App\Http\Requests\UpdateTalkRequest;
+use App\Models\Tag;
 use App\Models\Talk;
 use App\Models\TalkRevision;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TalkController extends Controller
 {
@@ -16,20 +20,12 @@ class TalkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request,GetTalks $action)
     {
         //
-        $talks = auth()
-            ->user()
-            ->talks()
-            ->with([
-                'conferences' => fn($query) => $query->orderBy('starts_at'),
-                'currentRevision'
-            ])
-            ->withCount('conferences')
-            ->latest('updated_at')
-            ->paginate(10);
-        return view('talks.index', compact('talks'));
+        $talks = $action->handle($request);
+        $tags = Tag::orderBy('name')->get();
+        return view('talks.index', compact('talks','tags'));
     }
 
     /**
@@ -37,9 +33,10 @@ class TalkController extends Controller
      */
     public function create()
     {
-        //
-        $talkTypes = TalkType::cases();
-        return view('talks.create', compact('talkTypes'));
+        return view('talks.create', [
+            'talkTypes' => TalkType::cases(),
+            'tags' => Tag::orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -50,20 +47,24 @@ class TalkController extends Controller
         //
         $validated = $request->validated();
         $abstract = $validated['abstract'] ?? null;
+        $tags = $validated['tags'] ?? [];
+        unset($validated['abstract'], $validated['tags']);
 
-        unset($validated['abstract']);
-
-        $talk = Talk::create([
-            ...$validated,
-            'user_id' => auth()->id(),
-        ]);
-
-        if ($abstract) {
-            TalkRevision::create([
-                'talk_id' => $talk->id,
-                'abstract' => $abstract,
+        DB::transaction(function () use ($validated, $abstract, $tags) {
+            $talk = Talk::create([
+                ...$validated,
+                'user_id' => auth()->id(),
             ]);
-        }
+
+            if ($abstract) {
+                TalkRevision::create([
+                    'talk_id' => $talk->id,
+                    'abstract' => $abstract,
+                ]);
+            }
+
+            $talk->tags()->sync($tags);
+        });
 
         return redirect()->route('talks.index');
     }
@@ -87,10 +88,15 @@ class TalkController extends Controller
      */
     public function edit(Talk $talk)
     {
-        //
         $this->authorize('update', $talk);
-        $talkTypes = TalkType::cases();
-        return view('talks.edit', compact('talk', 'talkTypes'));
+
+        $talk->load('tags');
+
+        return view('talks.edit', [
+            'talk' => $talk,
+            'talkTypes' => TalkType::cases(),
+            'tags' => Tag::orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -103,16 +109,22 @@ class TalkController extends Controller
 
         $validated = $request->validated();
         $abstract = $validated['abstract'] ?? null;
-        unset($validated['abstract']);
+        $tags = $validated['tags'] ?? [];
+        unset($validated['abstract'], $validated['tags']);
 
-        $talk->update($validated);
 
-        if ($abstract) {
-            TalkRevision::create([
-                'talk_id' => $talk->id,
-                'abstract' => $abstract,
-            ]);
-        }
+        DB::transaction(function () use ($talk, $validated, $abstract, $tags) {
+            $talk->update($validated);
+
+            if ($abstract) {
+                TalkRevision::create([
+                    'talk_id' => $talk->id,
+                    'abstract' => $abstract,
+                ]);
+            }
+
+            $talk->tags()->sync($tags);
+        });
 
         return redirect()->route('talks.index');
     }

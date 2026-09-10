@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Laravel\Scout\Searchable;
 
 class Talk extends Model
@@ -22,6 +23,11 @@ class Talk extends Model
     protected $casts = [
         'type' => TalkType::class,
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(fn ($talk) => $talk->tags()->detach());
+    }
 
     public function author()
     {
@@ -47,6 +53,11 @@ class Talk extends Model
     public function currentRevision(): HasOne
     {
         return $this->hasOne(TalkRevision::class)->latestOfMany();
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function makeAllSearchableUsing(Builder $query): Builder
