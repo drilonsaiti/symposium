@@ -5,6 +5,7 @@ namespace Profile;
 use App\Enum\TalkSubmissionStatus;
 use App\Models\Bio;
 use App\Models\Conference;
+use App\Models\Tag;
 use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -164,4 +165,32 @@ it('shows correct speaker stats', function () {
         ->assertOk()
         ->assertSee('2')
         ->assertSee('2');
+});
+
+it('tags appear on speaker profile for an accepted talk', function () {
+    $speaker = makeUser();
+    $conferenceOwner = makeUser();
+
+    $tag = Tag::factory()->create([
+        'name' => 'Laravel',
+        'slug' => 'laravel',
+    ]);
+
+    $talk = Talk::factory()->create([
+        'user_id' => $speaker->id,
+    ]);
+
+    $talk->tags()->attach($tag);
+
+    $conference = Conference::factory()->create([
+        'user_id' => $conferenceOwner->id,
+    ]);
+
+    $conference->talks()->attach($talk->id, [
+        'status' => TalkSubmissionStatus::ACCEPTED->value,
+    ]);
+
+    $this->get(route('speakers.show', $speaker))
+        ->assertOk()
+        ->assertSee('Laravel');
 });
