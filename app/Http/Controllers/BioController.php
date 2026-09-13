@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBioRequest;
 use App\Http\Requests\UpdateBioRequest;
 use App\Models\Bio;
+use App\Models\Tag;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 
 class BioController extends Controller
 {
@@ -27,7 +29,8 @@ class BioController extends Controller
     public function create()
     {
         //
-        return view('bios.create');
+        $tags = Tag::orderBy('name')->get();
+        return view('bios.create',compact('tags'));
     }
 
     /**
@@ -37,10 +40,15 @@ class BioController extends Controller
     {
         //
         $validated = $request->validated();
-        Bio::create([
-            ...$validated,
-            'user_id' => auth()->id(),
-        ]);
+        $tags = $validated['tags'] ?? [];
+        unset($validated['tags']);
+        DB::transaction(function () use ($validated,$tags) {
+            $bio = Bio::create([
+                ...$validated,
+                'user_id' => auth()->id(),
+            ]);
+            $bio->tags()->sync($tags);
+        });
         return redirect()->route('bios.index');
     }
 
@@ -61,7 +69,8 @@ class BioController extends Controller
     {
         //
         $this->authorize('update', $bio);
-        return view('bios.edit', compact('bio'));
+        $tags = Tag::orderBy('name')->get();
+        return view('bios.edit', compact('bio','tags'));
     }
 
     /**
@@ -73,7 +82,12 @@ class BioController extends Controller
         $this->authorize('update', $bio);
 
         $validated = $request->validated();
-        $bio->update($validated);
+        $tags = $validated['tags'] ?? [];
+        unset($validated['tags']);
+        DB::transaction(function () use ($validated,$tags,$bio) {
+            $bio->update($validated);
+            $bio->tags()->sync($tags);
+        });
         return redirect()->route('bios.index');
     }
 

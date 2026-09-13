@@ -93,6 +93,19 @@
                                             </p>
                                         </div>
                                     @endif
+
+                                    @if ($conference->pivot->bio->tags->isNotEmpty())
+                                        <div class="mt-3 flex flex-wrap gap-2">
+                                            @foreach ($conference->pivot->bio->tags as $tag)
+                                                <a
+                                                    href="{{ route('talks.index', ['tag' => $tag->slug]) }}"
+                                                    class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-200"
+                                                >
+                                                    {{ $tag->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             </article>
                         @endforeach

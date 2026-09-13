@@ -28,6 +28,11 @@ class Tag extends Model
         return $this->morphedByMany(Conference::class, 'taggable');
     }
 
+    public function bios(): MorphToMany
+    {
+        return $this->morphedByMany(Bio::class, 'taggable');
+    }
+
     private static function generateUniqueSlug(string $name): string
     {
         $slug = Str::slug($name);

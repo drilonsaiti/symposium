@@ -26,6 +26,8 @@ class StoreBioRequest extends FormRequest
             //
             'nickname' => ['required', 'string', 'max:255'],
             'bio' => ['required', 'string'],
+            'tags' => ['nullable', 'array','max:8'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ];
     }
 }

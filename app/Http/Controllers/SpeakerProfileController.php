@@ -15,22 +15,24 @@ class SpeakerProfileController extends Controller
     public function show(User $user)
     {
         $acceptedTalks = Talk::where('user_id', $user->id)
-            ->whereHas('conferences', fn ($q) =>
-            $q->where('conference_talk.status', TalkSubmissionStatus::ACCEPTED->value)
+            ->whereHas('conferences', fn($q) => $q->where('conference_talk.status', TalkSubmissionStatus::ACCEPTED->value)
             )
             ->with([
-                'conferences' => fn ($q) => $q->wherePivot('status', TalkSubmissionStatus::ACCEPTED),
+                'conferences' => fn($q) => $q->wherePivot('status', TalkSubmissionStatus::ACCEPTED),
                 'tags',
             ])
             ->get();
 
         $bioIds = $acceptedTalks
-            ->flatMap(fn ($talk) => $talk->conferences)
+            ->flatMap(fn($talk) => $talk->conferences)
             ->pluck('pivot.bio_id')
             ->filter()
             ->unique();
 
-        $bios = Bio::whereIn('id', $bioIds)->get()->keyBy('id');
+        $bios = Bio::whereIn('id', $bioIds)
+            ->with('tags')
+            ->get()
+            ->keyBy('id');
 
         $acceptedTalks->each(function ($talk) use ($bios) {
             $talk->conferences->each(function ($conference) use ($bios) {
@@ -43,13 +45,13 @@ class SpeakerProfileController extends Controller
 
         $availableTalks = Talk::where('user_id', $user->id)
             ->doesntHave('conferences')
-            ->with('currentRevision','tags')
+            ->with('currentRevision', 'tags')
             ->get();
 
         $stats = [
             'accepted_talks' => $acceptedTalks->count(),
             'conferences_spoken_at' => $acceptedTalks
-                ->flatMap(fn ($talk) => $talk->conferences)
+                ->flatMap(fn($talk) => $talk->conferences)
                 ->unique('id')
                 ->count(),
         ];
