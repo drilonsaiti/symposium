@@ -11,7 +11,7 @@ use Laravel\Scout\Searchable;
 class Bio extends Model
 {
     //
-    use Searchable;
+    use Searchable,HasFactory;
     protected $guarded = ['id'];
 
 
