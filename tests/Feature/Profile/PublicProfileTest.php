@@ -78,7 +78,10 @@ it('shows accepted talks with their correct conference', function () {
     $this->withoutExceptionHandling();
 
     $speaker = makeUser('janedoe');
-    $conference = Conference::factory()->create(['title' => 'LaraconEurope']);
+
+    $conference = Conference::factory()->create([
+        'title' => 'LaraconEurope',
+    ]);
 
     $acceptedTalk = Talk::factory()->create([
         'user_id' => $speaker->id,
@@ -86,7 +89,9 @@ it('shows accepted talks with their correct conference', function () {
     ]);
 
     $acceptedTalk->conferences()->attach($conference->id, [
-        'status' => TalkSubmissionStatus::ACCEPTED,
+        'status' => TalkSubmissionStatus::ACCEPTED->value,
+        'talk_revision_id' => $acceptedTalk->currentRevision?->id,
+        'bio_id' => null,
     ]);
 
     $this->get(route('speakers.show', $speaker))

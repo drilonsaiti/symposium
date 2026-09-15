@@ -12,12 +12,15 @@ test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $this->assertAuthenticatedAs($user);
+
+    $response->assertRedirect(
+        route('dashboard', absolute: false)
+    );
 });
 
 test('users can not authenticate with invalid password', function () {

@@ -123,16 +123,20 @@ it('submit talk to conference', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
         'user_id' => $talkUser->id,
     ]);
 
-    $this->actingAs($talkUser)->post(route('conferences.talks.submit', [
-        'conference' => $conference,
-        'talk' => $talk,
-    ]))->assertRedirect(route('conferences.show', $conference));
+    $this->actingAs($talkUser)
+        ->post(route('conferences.talks.submit', [
+            'conference' => $conference,
+            'talk' => $talk,
+        ]))
+        ->assertRedirect(route('conferences.show', $conference));
 
     $this->assertDatabaseHas('conference_talk', [
         'conference_id' => $conference->id,
@@ -147,6 +151,8 @@ it('change status of submitted talk', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
@@ -181,6 +187,8 @@ it('cannot change status from rejected', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
@@ -270,6 +278,8 @@ it('submitting a talk stores the current revision on the pivot', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
@@ -393,6 +403,8 @@ it('dispatches TalkWasSubmitted event when a talk is submitted', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
@@ -422,6 +434,8 @@ it('dispatches SubmissionStatusChanged event when status changes', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
@@ -481,6 +495,8 @@ it('rate limits talk submissions', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([

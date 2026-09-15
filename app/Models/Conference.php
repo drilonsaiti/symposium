@@ -163,4 +163,12 @@ class Conference extends Model
             $q->where('user_id', $user->id)
         );
     }
+
+    public function cfpIsOpen(): bool
+    {
+        $now = now();
+
+        return $this->cfp_starts_at <= $now
+            && $this->cfp_ends_at >= $now;
+    }
 }

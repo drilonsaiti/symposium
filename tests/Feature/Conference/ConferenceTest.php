@@ -193,18 +193,20 @@ it('rate limits status changes', function () {
 
     $conference = Conference::factory()->create([
         'user_id' => $conferenceUser->id,
+        'cfp_starts_at' => now()->subDay(),
+        'cfp_ends_at' => now()->addDay(),
     ]);
 
     $talk = Talk::factory()->create([
         'user_id' => $talkUser->id,
     ]);
 
-    $this->actingAs($talkUser)->post(
-        route('conferences.talks.submit', [
+    $this->actingAs($talkUser)
+        ->post(route('conferences.talks.submit', [
             'conference' => $conference,
             'talk' => $talk,
-        ])
-    );
+        ]))
+        ->assertRedirect();
 
     $request = fn () => $this->actingAs($conferenceUser)
         ->patch(
@@ -218,7 +220,13 @@ it('rate limits status changes', function () {
         );
 
     foreach (range(1, 20) as $i) {
-        DB::table('conference_talk')->update(['status' => 'pending']);
+        DB::table('conference_talk')
+            ->where('conference_id', $conference->id)
+            ->where('talk_id', $talk->id)
+            ->update([
+                'status' => 'pending',
+            ]);
+
         $request()->assertRedirect();
     }
 

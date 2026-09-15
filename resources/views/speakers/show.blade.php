@@ -94,7 +94,7 @@
                                         </div>
                                     @endif
 
-                                    @if ($conference->pivot->bio->tags->isNotEmpty())
+                                    @if ($conference->pivot->bio && $conference->pivot->bio->tags->isNotEmpty())
                                         <div class="mt-3 flex flex-wrap gap-2">
                                             @foreach ($conference->pivot->bio->tags as $tag)
                                                 <a
