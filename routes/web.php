@@ -5,8 +5,10 @@ use App\Http\Controllers\BioController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceDismissedController;
 use App\Http\Controllers\ConferenceFavoriteController;
+use App\Http\Controllers\ConferenceReviewerController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewingController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SpeakerProfileController;
 use App\Http\Controllers\TalkController;
@@ -73,6 +75,18 @@ Route::middleware('auth')->prefix('my')->group(function () {
     Route::post('talks/{talk}/revisions/{revision}/restore', [TalkRevisionController::class, 'restore'])
         ->middleware('throttle:restore')
         ->name('talks.revisions.restore');
+
+    Route::post('conferences/{conference}/reviewers', [ConferenceReviewerController::class, 'store'])
+        ->name('conferences.reviewers.store');
+    Route::delete('conferences/{conference}/reviewers/{user}', [ConferenceReviewerController::class, 'destroy'])
+        ->name('conferences.reviewers.destroy');
+
+    Route::get('reviewing', [ReviewingController::class, 'index'])
+        ->name('reviewing.index');
+    Route::patch('reviewing/{conference}/accept', [ReviewingController::class, 'accept'])
+        ->name('reviewing.accept');
+    Route::delete('reviewing/{conference}/decline', [ReviewingController::class, 'decline'])
+        ->name('reviewing.decline');
 });
 
 Route::resource('conferences', ConferenceController::class)->only(['index', 'show'])->names('public.conferences');

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Database\Eloquent\Builder;
 #[Fillable(['name', 'username', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -78,10 +78,29 @@ class User extends Authenticatable
             ->wherePivot('status',ConferenceReviewerStatus::ACCEPTED->value);
     }
 
+    public function pendingReviewerInvitations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conference::class, 'conference_reviewers')
+            ->using(ConferenceReviewer::class)
+            ->withPivot('status')
+            ->withTimestamps()
+            ->wherePivot('status', ConferenceReviewerStatus::PENDING->value);
+    }
+
+    public function scopeByUsernameOrEmail(Builder $query, string $value): Builder
+    {
+        return $query->where(function (Builder $query) use ($value) {
+            $query->where('username',$value)
+                ->orWhere('email',$value);
+        });
+    }
+
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('username', $value)
             ->orWhere('id', $value)
             ->firstOrFail();
     }
+
+
 }

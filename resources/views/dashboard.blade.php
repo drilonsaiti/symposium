@@ -292,6 +292,51 @@
 
                 <div class="space-y-8">
 
+                    @if($pendingReviewerInvitations->isNotEmpty() || $reviewingConferences->isNotEmpty())
+                        <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-6 sm:px-8">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+                                        Reviewing
+                                    </p>
+
+                                    <h2 class="mt-2 text-2xl font-bold text-gray-950">
+                                        Reviewer activity
+                                    </h2>
+                                </div>
+
+                                <a
+                                    href="{{ route('reviewing.index') }}"
+                                    class="text-sm font-semibold text-gray-600 transition hover:text-gray-950"
+                                >
+                                    View reviewing →
+                                </a>
+                            </div>
+
+                            <div class="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
+                                <div class="rounded-2xl border border-gray-200 p-5">
+                                    <p class="text-sm font-medium text-gray-500">
+                                        Pending invitations
+                                    </p>
+
+                                    <p class="mt-3 text-3xl font-bold text-gray-950">
+                                        {{ $pendingReviewerInvitations->count() }}
+                                    </p>
+                                </div>
+
+                                <div class="rounded-2xl border border-gray-200 p-5">
+                                    <p class="text-sm font-medium text-gray-500">
+                                        Active reviewing
+                                    </p>
+
+                                    <p class="mt-3 text-3xl font-bold text-gray-950">
+                                        {{ $reviewingConferences->count() }}
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+                    @endif
+
                     <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
                         <div
                             class="flex flex-col gap-4 border-b border-gray-200 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">

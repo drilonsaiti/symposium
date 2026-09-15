@@ -65,6 +65,15 @@ class DashboardController extends Controller
             fn ($talk) => $getSubmissionStatus($talk) === 'rejected'
         );
 
+        $reviewingConferences = $user->reviewingConferences()
+            ->latest('conference_reviewers.updated_at')
+            ->limit(5)
+            ->get();
+
+        $pendingReviewerInvitations = $user->pendingReviewerInvitations()
+            ->latest('conference_reviewers.created_at')
+            ->get();
+
         return view('dashboard', compact(
             'talks',
             'bios',
@@ -74,6 +83,8 @@ class DashboardController extends Controller
             'pendingSubmissions',
             'acceptedSubmissions',
             'rejectedSubmissions',
+            'reviewingConferences',
+            'pendingReviewerInvitations',
         ));
     }
 }

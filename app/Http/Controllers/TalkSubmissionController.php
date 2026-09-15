@@ -9,6 +9,7 @@ use App\Http\Requests\ChangeStatusTalkSubmissionRequest;
 use App\Http\Requests\StoreTalkSubmissionRequest;
 use App\Models\Conference;
 use App\Models\Talk;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TalkSubmissionController extends Controller
@@ -19,15 +20,32 @@ class TalkSubmissionController extends Controller
     public function store(StoreTalkSubmissionRequest $request, Conference $conference, Talk $talk)
     {
         $validated = $request->validated();
+
         $this->authorize('submitTalk', $talk);
 
-        $result = $conference->talks()->syncWithoutDetaching([
-            $talk->id => [
-                'status' => TalkSubmissionStatus::PENDING,
-                'bio_id' => $validated['bio_id'] ?? null,
-                'talk_revision_id' => $talk->currentRevision?->id
-            ],
-        ]);
+        abort_unless(
+            $conference->cfpIsOpen(),
+            403,
+            'The call for papers is closed.'
+        );
+
+        try {
+            $result = $conference->talks()->syncWithoutDetaching([
+                $talk->id => [
+                    'status' => TalkSubmissionStatus::PENDING,
+                    'bio_id' => $validated['bio_id'] ?? null,
+                    'talk_revision_id' => $talk->currentRevision?->id,
+                ],
+            ]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()
+                    ->route('reviewing.index', $conference)
+                    ->with('status', 'Talk was already submitted.');
+            }
+
+            throw $e;
+        }
 
         if (empty($result['attached'])) {
             return redirect()

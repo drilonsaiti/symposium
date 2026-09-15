@@ -93,6 +93,14 @@ class Conference extends Model
             ->wherePivot('status', ConferenceReviewerStatus::PENDING->value);
     }
 
+    public function reviewerInvitations(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conference_reviewers')
+            ->using(ConferenceReviewer::class)
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
     public function scopeUpcoming($query)
     {
         return $query->where('starts_at', '>=', now()->startOfDay());

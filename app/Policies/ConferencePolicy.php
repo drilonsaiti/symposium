@@ -74,4 +74,9 @@ class ConferencePolicy
         return $user->id === $conference->user_id
             || $conference->reviewers()->whereKey($user->id)->exists();
     }
+
+    public function manageReviewers(User $user, Conference $conference): bool
+    {
+         return $user->id === $conference->user_id;
+    }
 }
