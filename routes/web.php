@@ -21,8 +21,10 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/check-username', [RegisteredUserController::class, 'checkUsername'])
+    ->middleware('throttle:username-check')
     ->name('username.check');
 Route::get('/check-email', [RegisteredUserController::class, 'checkEmail'])
+    ->middleware('throttle:email-check')
     ->name('email.check');
 Route::get('speakers/{user}', [SpeakerProfileController::class, 'show'])
     ->name('speakers.show');
