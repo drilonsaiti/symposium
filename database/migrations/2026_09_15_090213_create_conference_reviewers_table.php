@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::create('conference_user', function (Blueprint $table) {
+        Schema::create('conference_reviewers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('conference_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('conference_id')->constrained('conferences')->cascadeOnDelete();
             $table->string('status');
             $table->timestamps();
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('conference_user');
+        Schema::dropIfExists('conference_reviewers');
     }
 };

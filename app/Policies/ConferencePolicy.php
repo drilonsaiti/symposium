@@ -65,11 +65,13 @@ class ConferencePolicy
 
     public function viewSubmissions(User $user, Conference $conference): bool
     {
-        return $user->id === $conference->user_id;
+        return $user->id === $conference->user_id
+            || $conference->reviewers()->whereKey($user->id)->exists();
     }
 
     public function manageSubmissions(User $user, Conference $conference): bool
     {
-        return $user->id === $conference->user_id;
+        return $user->id === $conference->user_id
+            || $conference->reviewers()->whereKey($user->id)->exists();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enum\ConferenceReviewerStatus;
 use App\Enum\ConferenceUserStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -66,6 +67,15 @@ class User extends Authenticatable
     {
         return $this->conferencesStates()
             ->wherePivot('status',ConferenceUserStatus::DISMISSED);
+    }
+
+    public function reviewingConferences(): BelongsToMany
+    {
+        return $this->belongsToMany(Conference::class,'conference_reviewers')
+            ->using(ConferenceReviewer::class)
+            ->withPivot('status')
+            ->withTimestamps()
+            ->wherePivot('status',ConferenceReviewerStatus::ACCEPTED->value);
     }
 
     public function resolveRouteBinding($value, $field = null)

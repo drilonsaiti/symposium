@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\ConferenceReviewerStatus;
 use App\Enum\ConferenceUserStatus;
 use App\Support\ConferenceCache;
 use Database\Factories\ConferenceFactory;
@@ -72,6 +73,24 @@ class Conference extends Model
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    public function reviewers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conference_reviewers')
+            ->using(ConferenceReviewer::class)
+            ->withPivot('status')
+            ->withTimestamps()
+            ->wherePivot('status', ConferenceReviewerStatus::ACCEPTED->value);
+    }
+
+    public function pendingReviewers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conference_reviewers')
+            ->using(ConferenceReviewer::class)
+            ->withPivot('status')
+            ->withTimestamps()
+            ->wherePivot('status', ConferenceReviewerStatus::PENDING->value);
     }
 
     public function scopeUpcoming($query)

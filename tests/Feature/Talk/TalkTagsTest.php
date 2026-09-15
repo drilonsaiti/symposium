@@ -114,3 +114,22 @@ it('talks index can be filtered by tag slug', function () {
 });
 
 
+it('shows tags on the talk details page', function () {
+    $user = makeUser();
+
+    $talk = Talk::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $tags = Tag::factory()->count(3)->create();
+
+    $talk->tags()->attach($tags);
+
+    $response = $this->actingAs($user)
+        ->get(route('talks.show', $talk))
+        ->assertOk();
+
+    foreach ($tags as $tag) {
+        $response->assertSee($tag->name);
+    }
+});
