@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    # Starting deliberately lenient (level 3 of 9) so this is adoptable
+    # without a large one-time cleanup PR. Raise the level gradually as
+    # existing findings are addressed — see composer.json's "stan" script.
+    level: 3
+
+    excludePaths:
+        - app/Providers/*
+
+    tmpDir: build/phpstan

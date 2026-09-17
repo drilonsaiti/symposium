@@ -1,0 +1,35 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly scan catches newly-disclosed advisories against unchanged code.
+    - cron: '30 3 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # CodeQL does not have a PHP analyzer; this covers the JS/Alpine.js
+        # frontend code. PHP-specific static analysis is handled separately
+        # by Larastan/PHPStan (see the static-analysis workflow).
+        language: [ 'javascript' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - uses: github/codeql-action/autobuild@v3
+
+      - uses: github/codeql-action/analyze@v3
