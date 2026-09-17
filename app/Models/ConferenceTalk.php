@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\TalkSubmissionStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ConferenceTalk extends Pivot
@@ -28,5 +29,10 @@ class ConferenceTalk extends Pivot
     public function bio(): BelongsTo
     {
         return $this->belongsTo(Bio::class);
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(CfpAnswer::class);
     }
 }

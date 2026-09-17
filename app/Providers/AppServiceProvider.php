@@ -7,9 +7,11 @@ use App\Events\TalkWasSubmitted;
 use App\Listeners\NotifyConferenceOwnerOfSubmission;
 use App\Listeners\NotifySubmitterOfStatusChange;
 use App\Models\Bio;
+use App\Models\CfpQuestion;
 use App\Models\Conference;
 use App\Models\Talk;
 use App\Policies\BioPolicy;
+use App\Policies\CfpQuestionPolicy;
 use App\Policies\ConferencePolicy;
 use App\Policies\TalkPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -39,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Talk::class, TalkPolicy::class);
         Gate::policy(Conference::class, ConferencePolicy::class);
         Gate::policy(Bio::class, BioPolicy::class);
+        Gate::policy(CfpQuestion::class, CfpQuestionPolicy::class);
 
         Event::listen(
             TalkWasSubmitted::class,
