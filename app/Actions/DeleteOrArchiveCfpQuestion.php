@@ -4,7 +4,7 @@ namespace App\Actions;
 
 use App\Models\CfpQuestion;
 
-class DeleteOrArchiveCfpQuestion
+final class DeleteOrArchiveCfpQuestion
 {
 
     public function execute(CfpQuestion $question): void

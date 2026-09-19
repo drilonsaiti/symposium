@@ -8,7 +8,7 @@ use App\Models\Bio;
 use App\Models\Conference;
 use App\Models\User;
 
-class GetConferenceDTO
+final class GetConferenceDTO
 {
 
     public function handle(Conference $conference,?User $user,bool $isOwner,bool $canViewSubmissions): ConferenceDTO

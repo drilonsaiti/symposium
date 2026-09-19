@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\SaveCfpAnswers;
 use App\Enum\TalkSubmissionStatus;
 use App\Events\SubmissionStatusChanged;
 use App\Events\TalkWasSubmitted;
 use App\Http\Requests\ChangeStatusTalkSubmissionRequest;
 use App\Http\Requests\StoreTalkSubmissionRequest;
 use App\Models\Conference;
+use App\Models\ConferenceTalk;
 use App\Models\Talk;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 
 class TalkSubmissionController extends Controller
 {
     //
     use AuthorizesRequests;
 
-    public function store(StoreTalkSubmissionRequest $request, Conference $conference, Talk $talk)
+    public function store(StoreTalkSubmissionRequest $request, Conference $conference, Talk $talk,SaveCfpAnswers $saveCfpAnswers)
     {
         $validated = $request->validated();
 
@@ -30,17 +33,27 @@ class TalkSubmissionController extends Controller
         );
 
         try {
-            $result = $conference->talks()->syncWithoutDetaching([
-                $talk->id => [
-                    'status' => TalkSubmissionStatus::PENDING,
-                    'bio_id' => $validated['bio_id'] ?? null,
-                    'talk_revision_id' => $talk->currentRevision?->id,
-                ],
-            ]);
+            $result = DB::transaction(function () use ($conference, $talk, $validated,$saveCfpAnswers) {
+                 $result = $conference->talks()->syncWithoutDetaching([
+                    $talk->id => [
+                        'status' => TalkSubmissionStatus::PENDING,
+                        'bio_id' => $validated['bio_id'] ?? null,
+                        'talk_revision_id' => $talk->currentRevision?->id,
+                    ],
+                ]);
+
+                if (empty($result['attached'])) {
+                    return $result;
+                }
+
+                $submission = ConferenceTalk::where('conference_id',$conference->id)->where('talk_id',$talk->id)->first();
+                $saveCfpAnswers->execute($submission,$validated['answers'] ?? []);
+                return $result;
+            });
         } catch (QueryException $e) {
             if ($e->getCode() === '23000') {
                 return redirect()
-                    ->route('reviewing.index', $conference)
+                    ->route('conferences.show', $conference)
                     ->with('status', 'Talk was already submitted.');
             }
 
