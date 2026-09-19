@@ -11,6 +11,10 @@ class ConferenceTalk extends Pivot
 {
     //
     protected $table = 'conference_talk';
+
+    protected $primaryKey = 'id';
+
+    public $incrementing = true;
     protected $guarded = ['id'];
     protected $casts = [
         'status' => TalkSubmissionStatus::class,
@@ -33,6 +37,11 @@ class ConferenceTalk extends Pivot
 
     public function answers(): HasMany
     {
-        return $this->hasMany(CfpAnswer::class);
+        return $this->newHasMany(
+            CfpAnswer::query(),
+            $this,
+            'cfp_answers.conference_talk_id',
+            'id'
+        );
     }
 }
