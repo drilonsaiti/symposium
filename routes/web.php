@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BioController;
+use App\Http\Controllers\CfpQuestionController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceDismissedController;
 use App\Http\Controllers\ConferenceFavoriteController;
@@ -89,6 +90,16 @@ Route::middleware('auth')->prefix('my')->group(function () {
         ->name('reviewing.accept');
     Route::delete('reviewing/{conference}/decline', [ReviewingController::class, 'decline'])
         ->name('reviewing.decline');
+
+    Route::post('conferences/{conference}/questions', [CfpQuestionController::class, 'store'])
+        ->name('conferences.questions.store');
+    Route::patch('conferences/{conference}/questions/{question}', [CfpQuestionController::class, 'update'])
+        ->name('conferences.questions.update');
+    Route::delete('conferences/{conference}/questions/{question}', [CfpQuestionController::class, 'destroy'])
+        ->name('conferences.questions.destroy');
+
+    Route::patch('/conferences/{conference}/questions/{question}/move', [CfpQuestionController::class, 'move'])
+        ->name('conferences.questions.move');
 });
 
 Route::resource('conferences', ConferenceController::class)->only(['index', 'show'])->names('public.conferences');

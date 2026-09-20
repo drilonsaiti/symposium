@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\DeleteOrArchiveCfpQuestion;
+use App\Actions\ReorderCfpQuestion;
+use App\Http\Requests\MoveCfpQuestionRequest;
 use App\Http\Requests\StoreCfpQuestionRequest;
 use App\Http\Requests\UpdateCfpQuestionRequest;
 use App\Models\CfpQuestion;
@@ -49,5 +51,13 @@ class CfpQuestionController extends Controller
 
         return redirect()->back();
 
+    }
+
+    public function move(MoveCfpQuestionRequest $request,Conference $conference, CfpQuestion $question,ReorderCfpQuestion $action)
+    {
+        $data = $request->validated();
+        $action->execute($question, $data['direction']);
+
+        return redirect()->back();
     }
 }
