@@ -38,6 +38,8 @@ class CfpQuestionController extends Controller
     ) {
         $this->authorize('manageQuestions', $question);
 
+        abort_unless($question->conference_id === $conference->id, 404);
+
         $question->update($request->validated());
 
         return redirect()->back();
@@ -47,6 +49,8 @@ class CfpQuestionController extends Controller
     {
         $this->authorize('manageQuestions', $question);
 
+        abort_unless($question->conference_id === $conference->id, 404);
+
         $action->execute($question);
 
         return redirect()->back();
@@ -55,6 +59,8 @@ class CfpQuestionController extends Controller
 
     public function move(MoveCfpQuestionRequest $request,Conference $conference, CfpQuestion $question,ReorderCfpQuestion $action)
     {
+        abort_unless($question->conference_id === $conference->id, 404);
+
         $data = $request->validated();
         $action->execute($question, $data['direction']);
 
