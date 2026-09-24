@@ -17,8 +17,6 @@ class CfpQuestionController extends Controller
 
     public function store(StoreCfpQuestionRequest $request,Conference $conference)
     {
-        $this->authorize('create', [CfpQuestion::class, $conference]);
-
         $position = $conference->cfpQuestions()
             ->active()
             ->max('position') + 1;
@@ -28,6 +26,12 @@ class CfpQuestionController extends Controller
             'position' => $position,
         ]);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
         return redirect()->back();
     }
 
@@ -36,11 +40,16 @@ class CfpQuestionController extends Controller
         Conference $conference,
         CfpQuestion $question
     ) {
-        $this->authorize('manageQuestions', $question);
 
         abort_unless($question->conference_id === $conference->id, 404);
 
         $question->update($request->validated());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+            ]);
+        }
 
         return redirect()->back();
     }
@@ -53,6 +62,13 @@ class CfpQuestionController extends Controller
 
         $action->execute($question);
 
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
+
         return redirect()->back();
 
     }
@@ -63,6 +79,13 @@ class CfpQuestionController extends Controller
 
         $data = $request->validated();
         $action->execute($question, $data['direction']);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
 
         return redirect()->back();
     }

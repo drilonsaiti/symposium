@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Enum\QuestionType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-
+use App\Models\CfpQuestion;
 class StoreCfpQuestionRequest extends FormRequest
 {
     /**
@@ -13,7 +13,10 @@ class StoreCfpQuestionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can(
+            'create',
+            [CfpQuestion::class, $this->route('conference')]
+        ) ?? false;
     }
 
     /**
@@ -26,7 +29,14 @@ class StoreCfpQuestionRequest extends FormRequest
         return [
             'question' => ['required','string','max:255'],
             'type' => ['required',new \Illuminate\Validation\Rules\Enum(QuestionType::class)],
-            'required' => ['nullable','boolean']
+            'required' => ['required', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'required' => $this->boolean('required'),
+        ]);
     }
 }

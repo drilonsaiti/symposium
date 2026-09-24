@@ -17,6 +17,7 @@ class CfpQuestion extends Model
     protected $casts = [
         'type' => QuestionType::class,
         'is_active' => 'boolean',
+        'required' => 'boolean'
     ];
 
 

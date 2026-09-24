@@ -20,6 +20,7 @@ final class ConferenceDTO
         public readonly Collection $availableTalks,
         public readonly Collection $bios,
         public readonly Collection $submissionBios,
+        public readonly Collection $cfpQuestions
     ){}
 
     public function toArray(): array
@@ -36,6 +37,7 @@ final class ConferenceDTO
             'availableTalks' => $this->availableTalks,
             'bios' => $this->bios,
             'submissionBios' => $this->submissionBios,
+            'cfpQuestions' => $this->cfpQuestions
         ];
     }
 }

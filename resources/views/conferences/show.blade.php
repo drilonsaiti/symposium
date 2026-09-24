@@ -114,6 +114,21 @@
                                 Talk submissions
                             </button>
                         @endcan
+
+                        @can('create', [\App\Models\CfpQuestion::class, $conference])
+                            <button
+                                type="button"
+                                id="tab-cfp-questions"
+                                class="border-b-2 border-transparent px-4 py-5 text-sm font-semibold text-gray-500 transition hover:text-gray-950"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="panel-cfp-questions"
+                                tabindex="-1"
+                                data-tab-button="cfp-questions"
+                            >
+                                CFP questions
+                            </button>
+                        @endcan
                     </div>
                 </div>
 
@@ -294,6 +309,251 @@
                                                     @endforeach
                                                 </select>
                                             </form>
+                                        </div>
+                                    </article>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endcan
+
+                @can('create', [\App\Models\CfpQuestion::class, $conference])
+                    <div
+                        id="panel-cfp-questions"
+                        class="p-7 sm:p-9"
+                        role="tabpanel"
+                        aria-labelledby="tab-cfp-questions"
+                        data-tab-panel="cfp-questions"
+                        hidden
+                    >
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+                                Management
+                            </p>
+
+                            <h2 class="mt-2 text-2xl font-bold text-gray-950">
+                                CFP questions
+                            </h2>
+
+                            <p class="mt-2 text-sm text-gray-500">
+                                Manage the questions speakers answer when submitting a talk.
+                            </p>
+                        </div>
+
+                        {{-- Add question --}}
+                        <form
+                            method="POST"
+                            action="{{ route('conferences.questions.store', $conference) }}"
+                            class="mt-7 rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6"
+                            data-cfp-question-store
+                        >
+                            @csrf
+
+                            <div>
+                                <label
+                                    for="cfp-question-new"
+                                    class="block text-sm font-semibold text-gray-900"
+                                >
+                                    Question
+                                </label>
+
+                                <input
+                                    id="cfp-question-new"
+                                    type="text"
+                                    name="question"
+                                    value="{{ old('question') }}"
+                                    maxlength="255"
+                                    required
+                                    class="mt-3 w-full rounded-xl border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                >
+                            </div>
+
+                            <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label
+                                        for="cfp-question-type-new"
+                                        class="block text-sm font-semibold text-gray-900"
+                                    >
+                                        Type
+                                    </label>
+
+                                    <select
+                                        id="cfp-question-type-new"
+                                        name="type"
+                                        required
+                                        class="mt-3 w-full rounded-xl border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                    >
+                                        @foreach(\App\Enum\QuestionType::cases() as $type)
+                                            <option
+                                                value="{{ $type->value }}"
+                                                @selected(old('type') === $type->value)
+                                            >
+                                                {{ $type->label() }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="flex items-end">
+                                    <label class="flex items-center gap-3 text-sm font-semibold text-gray-900">
+                                        <input
+                                            type="checkbox"
+                                            name="required"
+                                            value="1"
+                                            @checked(old('required'))
+                                            class="rounded border-gray-300 text-gray-950 focus:ring-gray-500"
+                                        >
+                                        Required
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="mt-5 inline-flex rounded-xl bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            >
+                                Add question
+                            </button>
+                        </form>
+
+                        {{-- Existing questions --}}
+                        @if($cfpQuestions->isEmpty())
+                            <div class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+                                <p class="font-semibold text-gray-900">
+                                    No CFP questions yet.
+                                </p>
+
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Add your first question above.
+                                </p>
+                            </div>
+                        @else
+                            <div class="mt-7 space-y-4" data-cfp-question-list>
+                                @foreach($cfpQuestions as $question)
+                                    <article
+                                        class="rounded-2xl border border-gray-200 p-5 sm:p-6"
+                                        data-cfp-question
+                                        data-question-id="{{ $question->id }}"
+                                    >
+                                        <div class="flex flex-col gap-5">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('conferences.questions.update', [$conference, $question]) }}"
+                                                data-cfp-question-update
+                                            >
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <div>
+                                                    <label
+                                                        for="cfp-question-{{ $question->id }}"
+                                                        class="block text-sm font-semibold text-gray-900"
+                                                    >
+                                                        Question
+                                                    </label>
+
+                                                    <input
+                                                        id="cfp-question-{{ $question->id }}"
+                                                        type="text"
+                                                        name="question"
+                                                        value="{{ $question->question }}"
+                                                        maxlength="255"
+                                                        required
+                                                        class="mt-3 w-full rounded-xl border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                                    >
+                                                </div>
+
+                                                <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                                                    <div>
+                                                        <label
+                                                            for="cfp-question-type-{{ $question->id }}"
+                                                            class="block text-sm font-semibold text-gray-900"
+                                                        >
+                                                            Type
+                                                        </label>
+
+                                                        <select
+                                                            id="cfp-question-type-{{ $question->id }}"
+                                                            name="type"
+                                                            required
+                                                            class="mt-3 w-full rounded-xl border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                                        >
+                                                            @foreach(\App\Enum\QuestionType::cases() as $type)
+                                                                <option
+                                                                    value="{{ $type->value }}"
+                                                                    @selected($question->type === $type)
+                                                                >
+                                                                    {{ $type->label() }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="flex items-end">
+                                                        <label class="flex items-center gap-3 text-sm font-semibold text-gray-900">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="required"
+                                                                value="1"
+                                                                @checked($question->required)
+                                                                class="rounded border-gray-300 text-gray-950 focus:ring-gray-500"
+                                                            >
+                                                            Required
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="submit"
+                                                    class="mt-5 inline-flex rounded-xl bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                                >
+                                                    Save
+                                                </button>
+                                            </form>
+
+                                            <div
+                                                class="flex flex-wrap items-center gap-2 border-t border-gray-200 pt-4"
+                                                data-question-controls
+                                            >
+                                                <button
+                                                    type="button"
+                                                    data-move-question
+                                                    data-direction="up"
+                                                    data-url="{{ route('conferences.questions.move', [$conference, $question]) }}"
+                                                    @if($loop->first) hidden @endif
+                                                    class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    ↑ Move up
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    data-move-question
+                                                    data-direction="down"
+                                                    data-url="{{ route('conferences.questions.move', [$conference, $question]) }}"
+                                                    @if($loop->last) hidden @endif
+                                                    class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    ↓ Move down
+                                                </button>
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('conferences.questions.destroy', [$conference, $question]) }}"
+                                                    class="sm:ml-auto"
+                                                    data-cfp-question-destroy
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button
+                                                        type="submit"
+                                                        class="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+                                                    >
+                                                        Archive
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </article>
                                 @endforeach
@@ -548,14 +808,293 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+            if (csrfToken) {
+                initCfpQuestionAjax(csrfToken);
+            } else {
+                console.error('CSRF token meta tag is missing. CFP AJAX disabled.');
+            }
+
+            initConferenceTabs();
+            initTalkSubmissionForm();
+        });
+
+        function initCfpQuestionAjax(csrfToken) {
+            initQuestionStore(csrfToken);
+            initQuestionUpdate(csrfToken);
+            initQuestionMove(csrfToken);
+            initQuestionDestroy(csrfToken);
+        }
+
+        function initQuestionStore(csrfToken) {
+            document.addEventListener('submit', async event => {
+                const form = event.target.closest('[data-cfp-question-store]');
+
+                if (!form) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const button = form.querySelector('[type="submit"]');
+                const originalText = button.textContent.trim();
+
+                button.disabled = true;
+                button.textContent = 'Adding...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: new FormData(form),
+                    });
+
+                    if (!response.ok) {
+                        console.error(await response.text());
+                        throw new Error(`Could not create question (${response.status}).`);
+                    }
+
+                    button.textContent = 'Added';
+
+                    window.location.hash = 'cfp-questions';
+                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+
+                    button.textContent = 'Error';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1500);
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        }
+
+        function initQuestionUpdate(csrfToken) {
+            document.addEventListener('submit', async event => {
+                const form = event.target.closest('[data-cfp-question-update]');
+
+                if (!form) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const button = form.querySelector('[type="submit"]');
+                const originalText = button.textContent.trim();
+
+                button.disabled = true;
+                button.textContent = 'Saving...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: new FormData(form),
+                    });
+
+                    if (!response.ok) {
+                        console.error(await response.text());
+                        throw new Error(`Could not update question (${response.status}).`);
+                    }
+
+                    button.textContent = 'Saved';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1200);
+                } catch (error) {
+                    console.error(error);
+
+                    button.textContent = 'Error';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1500);
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        }
+
+        function initQuestionMove(csrfToken) {
+            const questionList = document.querySelector('[data-cfp-question-list]');
+
+            if (!questionList) {
+                return;
+            }
+
+            questionList.addEventListener('click', async event => {
+                const button = event.target.closest('[data-move-question]');
+
+                if (!button) {
+                    return;
+                }
+
+                const card = button.closest('[data-cfp-question]');
+
+                if (!card) {
+                    return;
+                }
+
+                const direction = button.dataset.direction;
+                const originalText = button.textContent.trim();
+
+                button.disabled = true;
+                button.textContent = 'Moving...';
+
+                try {
+                    const response = await fetch(button.dataset.url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            direction,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        console.error(await response.text());
+                        throw new Error(`Could not reorder question (${response.status}).`);
+                    }
+
+                    if (direction === 'up') {
+                        const previous = card.previousElementSibling;
+
+                        if (previous) {
+                            questionList.insertBefore(card, previous);
+                        }
+                    }
+
+                    if (direction === 'down') {
+                        const next = card.nextElementSibling;
+
+                        if (next) {
+                            questionList.insertBefore(next, card);
+                        }
+                    }
+
+                    refreshMoveButtons();
+                } catch (error) {
+                    console.error(error);
+
+                    button.textContent = 'Error';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1500);
+
+                    return;
+                } finally {
+                    button.disabled = false;
+                }
+
+                button.textContent = originalText;
+            });
+        }
+
+        function initQuestionDestroy(csrfToken) {
+            document.addEventListener('submit', async event => {
+                const form = event.target.closest('[data-cfp-question-destroy]');
+
+                if (!form) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const card = form.closest('[data-cfp-question]');
+                const button = form.querySelector('[type="submit"]');
+                const originalText = button.textContent.trim();
+
+                button.disabled = true;
+                button.textContent = 'Archiving...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: new FormData(form),
+                    });
+
+                    if (!response.ok) {
+                        console.error(await response.text());
+                        throw new Error(`Could not archive question (${response.status}).`);
+                    }
+
+                    if (card) {
+                        card.remove();
+                    }
+
+                    refreshMoveButtons();
+                } catch (error) {
+                    console.error(error);
+
+                    button.textContent = 'Error';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1500);
+
+                    button.disabled = false;
+                }
+            });
+        }
+
+        function refreshMoveButtons() {
+            const questionList = document.querySelector('[data-cfp-question-list]');
+
+            if (!questionList) {
+                return;
+            }
+
+            const cards = [
+                ...questionList.querySelectorAll('[data-cfp-question]')
+            ];
+
+            cards.forEach((card, index) => {
+                const upButton = card.querySelector('[data-direction="up"]');
+                const downButton = card.querySelector('[data-direction="down"]');
+
+                if (upButton) {
+                    upButton.hidden = index === 0;
+                }
+
+                if (downButton) {
+                    downButton.hidden = index === cards.length - 1;
+                }
+            });
+        }
+
+        function initConferenceTabs() {
             const tabsRoot = document.querySelector('[data-conference-tabs]');
 
             if (!tabsRoot) {
                 return;
             }
 
-            const buttons = [...tabsRoot.querySelectorAll('[data-tab-button]')];
-            const panels = [...tabsRoot.querySelectorAll('[data-tab-panel]')];
+            const buttons = [
+                ...tabsRoot.querySelectorAll('[data-tab-button]')
+            ];
+
+            const panels = [
+                ...tabsRoot.querySelectorAll('[data-tab-panel]')
+            ];
 
             const activateTab = (tabName, updateHash = true) => {
                 const activeButton = buttons.find(
@@ -569,12 +1108,35 @@
                 buttons.forEach(button => {
                     const isActive = button === activeButton;
 
-                    button.setAttribute('aria-selected', String(isActive));
-                    button.setAttribute('tabindex', isActive ? '0' : '-1');
-                    button.classList.toggle('border-gray-950', isActive);
-                    button.classList.toggle('text-gray-950', isActive);
-                    button.classList.toggle('border-transparent', !isActive);
-                    button.classList.toggle('text-gray-500', !isActive);
+                    button.setAttribute(
+                        'aria-selected',
+                        String(isActive)
+                    );
+
+                    button.setAttribute(
+                        'tabindex',
+                        isActive ? '0' : '-1'
+                    );
+
+                    button.classList.toggle(
+                        'border-gray-950',
+                        isActive
+                    );
+
+                    button.classList.toggle(
+                        'text-gray-950',
+                        isActive
+                    );
+
+                    button.classList.toggle(
+                        'border-transparent',
+                        !isActive
+                    );
+
+                    button.classList.toggle(
+                        'text-gray-500',
+                        !isActive
+                    );
                 });
 
                 panels.forEach(panel => {
@@ -582,7 +1144,11 @@
                 });
 
                 if (updateHash) {
-                    history.replaceState(null, '', `#${tabName}`);
+                    history.replaceState(
+                        null,
+                        '',
+                        `#${tabName}`
+                    );
                 }
             };
 
@@ -599,7 +1165,9 @@
                     }
 
                     if (event.key === 'ArrowLeft') {
-                        nextIndex = (index - 1 + buttons.length) % buttons.length;
+                        nextIndex = (
+                            index - 1 + buttons.length
+                        ) % buttons.length;
                     }
 
                     if (event.key === 'Home') {
@@ -615,32 +1183,48 @@
                     }
 
                     event.preventDefault();
+
                     buttons[nextIndex].focus();
-                    activateTab(buttons[nextIndex].dataset.tabButton);
+
+                    activateTab(
+                        buttons[nextIndex].dataset.tabButton
+                    );
                 });
             });
 
             const requestedTab = window.location.hash.replace('#', '');
+
             const initialTab = buttons.some(
                 button => button.dataset.tabButton === requestedTab
-            ) ? requestedTab : 'details';
+            )
+                ? requestedTab
+                : 'details';
 
             activateTab(initialTab, false);
+        }
 
-            const submissionForm = document.querySelector('[data-talk-submission-form]');
-            const submissionSelect = document.querySelector('[data-talk-submission-url]');
+        function initTalkSubmissionForm() {
+            const submissionForm = document.querySelector(
+                '[data-talk-submission-form]'
+            );
 
-            if (submissionForm && submissionSelect) {
-                submissionForm.addEventListener('submit', event => {
-                    if (!submissionSelect.value) {
-                        event.preventDefault();
-                        submissionSelect.focus();
-                        return;
-                    }
+            const submissionSelect = document.querySelector(
+                '[data-talk-submission-url]'
+            );
 
-                    submissionForm.action = submissionSelect.value;
-                });
+            if (!submissionForm || !submissionSelect) {
+                return;
             }
-        });
+
+            submissionForm.addEventListener('submit', event => {
+                if (!submissionSelect.value) {
+                    event.preventDefault();
+                    submissionSelect.focus();
+                    return;
+                }
+
+                submissionForm.action = submissionSelect.value;
+            });
+        }
     </script>
 @endsection

@@ -50,6 +50,15 @@ final class GetConferenceDTO
 
         }
 
+        $cfpQuestions = collect();
+
+        if ($isOwner) {
+            $cfpQuestions = $conference->cfpQuestions()
+                ->active()
+                ->orderBy('position')
+                ->get();
+        }
+
         $cfpIsOpen = $conference->cfpIsOpen();
 
         return new ConferenceDTO(
@@ -64,6 +73,7 @@ final class GetConferenceDTO
             availableTalks: $availableTalks,
             bios: $bios,
             submissionBios: $submissionBios,
+            cfpQuestions: $cfpQuestions
         );
     }
 }

@@ -13,7 +13,10 @@ class UpdateCfpQuestionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can(
+            'manageQuestions',
+            $this->route('question')
+        ) ?? false;
     }
 
     /**
@@ -25,8 +28,15 @@ class UpdateCfpQuestionRequest extends FormRequest
     {
         return [
             'question' => ['required','string','max:255'],
-            'type' => ['required', new \Illuminate\Validation\Rules\Enum(QuestionType::class)],
-            'required' => ['nullable','boolean']
+            'type' => ['required',new \Illuminate\Validation\Rules\Enum(QuestionType::class)],
+            'required' => ['required', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'required' => $this->boolean('required'),
+        ]);
     }
 }
