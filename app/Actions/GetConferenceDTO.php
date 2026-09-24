@@ -49,17 +49,16 @@ final class GetConferenceDTO
                 ->get();
 
         }
+        $cfpIsOpen = $conference->cfpIsOpen();
 
         $cfpQuestions = collect();
 
-        if ($isOwner) {
+        if ($isOwner || ($user && $cfpIsOpen)) {
             $cfpQuestions = $conference->cfpQuestions()
                 ->active()
                 ->orderBy('position')
                 ->get();
         }
-
-        $cfpIsOpen = $conference->cfpIsOpen();
 
         return new ConferenceDTO(
             conference: $conference,

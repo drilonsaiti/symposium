@@ -694,6 +694,32 @@
                                                 @endif
                                             </div>
 
+                                            @if($cfpQuestions->isNotEmpty())
+                                                <div class="mt-5 space-y-5">
+                                                    @foreach($cfpQuestions as $question)
+                                                        <div>
+                                                            <label
+                                                                for="answer-{{ $question->id }}"
+                                                                class="block text-sm font-semibold text-gray-900"
+                                                            >
+                                                                {{ $question->question }}
+
+                                                                @if($question->required)
+                                                                    <span class="text-red-600">*</span>
+                                                                @endif
+                                                            </label>
+
+                                                            <textarea
+                                                                id="answer-{{ $question->id }}"
+                                                                name="answers[{{ $question->id }}]"
+                                                                @required($question->required)
+                                                                class="mt-3 w-full rounded-xl border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                                            >{{ old("answers.{$question->id}") }}</textarea>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
 
                                             <button
                                                 type="submit"
