@@ -34,6 +34,8 @@ class DashboardController extends Controller
             ->get();
 
 
+        $ownedConferencesCount = $user->conferences()->count();
+
         $ownedConferences = $user->conferences()
             ->latest()
             ->limit(5)
@@ -74,6 +76,12 @@ class DashboardController extends Controller
             ->latest('conference_reviewers.created_at')
             ->get();
 
+        $submissionsReceived = \App\Models\ConferenceTalk::query()
+            ->whereHas('conference', fn ($query) =>
+            $query->where('user_id', $user->id)
+            )
+            ->count();
+
         return view('dashboard', compact(
             'talks',
             'bios',
@@ -85,6 +93,8 @@ class DashboardController extends Controller
             'rejectedSubmissions',
             'reviewingConferences',
             'pendingReviewerInvitations',
+            'submissionsReceived',
+            'ownedConferencesCount'
         ));
     }
 }

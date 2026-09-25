@@ -12,7 +12,7 @@ class CfpAnswer extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(CfpQuestion::class);
+        return $this->belongsTo(CfpQuestion::class,'cfp_question_id');
     }
 
     public function conferenceTalk(): BelongsTo

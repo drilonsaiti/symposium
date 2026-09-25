@@ -43,15 +43,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Bio::class, BioPolicy::class);
         Gate::policy(CfpQuestion::class, CfpQuestionPolicy::class);
 
-        Event::listen(
-            TalkWasSubmitted::class,
-            NotifyConferenceOwnerOfSubmission::class
-        );
-
-        Event::listen(
-            SubmissionStatusChanged::class,
-            NotifySubmitterOfStatusChange::class,
-        );
 
         View::composer(['layouts.app','layouts.public.app'], function ($view) {
             $user = auth()->user();

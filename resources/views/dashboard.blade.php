@@ -10,33 +10,31 @@
         $ownedConferences = $ownedConferences ?? collect();
         $upcomingConferences = $upcomingConferences ?? collect();
 
-
-
-
-        $talksUrl = \Illuminate\Support\Facades\Route::has('talks.index')
+        $talksUrl = Route::has('talks.index')
             ? route('talks.index')
             : '#';
 
-        $createTalkUrl = \Illuminate\Support\Facades\Route::has('talks.create')
+        $createTalkUrl = Route::has('talks.create')
             ? route('talks.create')
             : $talksUrl;
 
-        $biosUrl = \Illuminate\Support\Facades\Route::has('bios.index')
+        $biosUrl = Route::has('bios.index')
             ? route('bios.index')
             : '#';
 
-        $createBioUrl = \Illuminate\Support\Facades\Route::has('bios.create')
+        $createBioUrl = Route::has('bios.create')
             ? route('bios.create')
             : $biosUrl;
 
-        $conferencesUrl = \Illuminate\Support\Facades\Route::has('conferences.index')
+        $conferencesUrl = Route::has('conferences.index')
             ? route('conferences.index')
             : '#';
-        $conferencesSubmittedUrl = \Illuminate\Support\Facades\Route::has('conferences.index')
-            ? route('conferences.index',['view' => 'submitted'])
+
+        $publicConferencesUrl = Route::has('public.conferences.index')
+            ? route('public.conferences.index')
             : '#';
 
-        $createConferenceUrl = \Illuminate\Support\Facades\Route::has('conferences.create')
+        $createConferenceUrl = Route::has('conferences.create')
             ? route('conferences.create')
             : $conferencesUrl;
     @endphp
@@ -85,9 +83,9 @@
                         </a>
                     @endif
 
-                    @if(\Illuminate\Support\Facades\Route::has('conferences.index'))
+                    @if(\Illuminate\Support\Facades\Route::has('public.conferences.index'))
                         <a
-                            href="{{ $conferencesUrl }}"
+                            href="{{ $publicConferences }}"
                             class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:bg-gray-50 hover:text-gray-950"
                         >
                             Browse conferences
@@ -253,7 +251,11 @@
                             </p>
 
                             <p class="mt-3 text-4xl font-bold tracking-tight">
-                                {{ $ownedConferences->count() }}
+                                {{ $ownedConferencesCount }}
+                            </p>
+
+                            <p class="mt-2 text-sm text-gray-400">
+                                {{ $submissionsReceived }} submissions received
                             </p>
                         </div>
 
@@ -352,7 +354,7 @@
 
                             @if(\Illuminate\Support\Facades\Route::has('conferences.index'))
                                 <a
-                                    href="{{ $conferencesSubmittedUrl }}"
+                                    href="{{ $publicConferencesUrl }}"
                                     class="text-sm font-semibold text-gray-600 transition hover:text-gray-950"
                                 >
                                     Browse conferences →
@@ -395,9 +397,9 @@
                                     speaker bio.
                                 </p>
 
-                                @if(\Illuminate\Support\Facades\Route::has('conferences.index'))
+                                @if(Route::has('public.conferences.index'))
                                     <a
-                                        href="{{ $conferencesUrl }}"
+                                        href="{{ $publicConferencesUrl }}"
                                         class="mt-5 inline-flex rounded-xl bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
                                     >
                                         Explore conferences
@@ -420,9 +422,9 @@
 
                                         $conferenceTitle = $conference?->title ?? 'Conference submission';
 
-                                        $conferenceUrl = $conference && Route::has('conferences.show')
-                                            ? route('conferences.show', $conference)
-                                            : null;
+                                        $conferenceUrl = $conference && Route::has('public.conferences.show')
+                                                            ? route('public.conferences.show', $conference)
+                                                            : null;
 
                                         $statusClasses = match ($statusValue) {
                                             'accepted' => 'bg-emerald-50 text-emerald-700',
@@ -848,7 +850,7 @@
                                 </div>
 
                                 <a
-                                    href="{{ $conferencesUrl }}"
+                                    href="{{ $publicConferences }}"
                                     class="text-sm font-semibold text-gray-500 transition hover:text-gray-950"
                                 >
                                     All
@@ -858,7 +860,9 @@
                             <div class="mt-6 space-y-4">
                                 @foreach($upcomingConferences->take(3) as $conference)
                                     <a
-                                        href="{{ \Illuminate\Support\Facades\Route::has('conferences.show') ? route('conferences.show', $conference) : '#' }}"
+                                        href="{{ Route::has('public.conferences.show')
+    ? route('public.conferences.show', $conference)
+    : '#' }}"
                                         class="block rounded-2xl border border-gray-200 p-4 transition hover:border-gray-300 hover:bg-gray-50"
                                     >
                                         <p class="line-clamp-1 font-bold text-gray-950">

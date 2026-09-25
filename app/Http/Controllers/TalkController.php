@@ -6,6 +6,7 @@ use App\Actions\GetTalks;
 use App\Enum\TalkType;
 use App\Http\Requests\StoreTalkRequest;
 use App\Http\Requests\UpdateTalkRequest;
+use App\Models\ConferenceTalk;
 use App\Models\Tag;
 use App\Models\Talk;
 use App\Models\TalkRevision;
@@ -20,12 +21,12 @@ class TalkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request,GetTalks $action)
+    public function index(Request $request, GetTalks $action)
     {
         //
         $talks = $action->handle($request);
         $tags = Tag::orderBy('name')->get();
-        return view('talks.index', compact('talks','tags'));
+        return view('talks.index', compact('talks', 'tags'));
     }
 
     /**
@@ -74,13 +75,58 @@ class TalkController extends Controller
      */
     public function show(Talk $talk)
     {
-        //
         $this->authorize('view', $talk);
-        $talk->load(['conferences' => fn($query) => $query->orderBy('starts_at'), 'currentRevision'])
-            ->loadCount('conferences')
-            ->latest('updated_at');
 
-        return view('talks.show', compact('talk'));
+        $user = auth()->user();
+
+        $isAuthor = $talk->user_id === $user->id;
+
+        $conferenceAccess = function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query
+                    ->where('conferences.user_id', $user->id)
+                    ->orWhereHas('reviewers', fn($query) => $query->where('users.id', $user->id)
+                    );
+            });
+        };
+
+        $talk->load([
+            'conferences' => function ($query) use ($isAuthor, $conferenceAccess) {
+                if (!$isAuthor) {
+                    $conferenceAccess($query);
+                }
+
+                $query->orderBy('starts_at');
+            },
+            'currentRevision',
+            'tags',
+        ]);
+
+        $talk->loadCount([
+            'conferences' => function ($query) use ($isAuthor, $conferenceAccess) {
+                if (!$isAuthor) {
+                    $conferenceAccess($query);
+                }
+            },
+        ]);
+
+        $conferenceSubmissions = ConferenceTalk::query()
+            ->where('talk_id', $talk->id)
+            ->when(!$isAuthor, fn($query) => $query->whereHas('conference', $conferenceAccess)
+            )
+            ->with([
+                'conference',
+                'answers.question',
+            ])
+            ->latest()
+            ->paginate(5)
+            ->withQueryString();
+
+        return view('talks.show', compact(
+            'talk',
+            'conferenceSubmissions',
+            'isAuthor'
+        ));
     }
 
     /**
