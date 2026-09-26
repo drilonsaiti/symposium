@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class Conference extends Model
 {
@@ -31,6 +32,14 @@ class Conference extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (Conference $conference) {
+            if (blank($conference->slug)) {
+                $conference->slug = static::generateUniqueSlug(
+                    $conference->title
+                );
+            }
+        });
+
         static::created(function () {
             ConferenceCache::flush();
         });
@@ -177,4 +186,56 @@ class Conference extends Model
         return $this->cfp_starts_at <= $now
             && $this->cfp_ends_at >= $now;
     }
+
+    public static function generateUniqueSlug(
+        string $title,
+        ?int   $ignoreId = null
+    ): string
+    {
+        $base = Str::slug($title);
+
+
+        if ($base === '') {
+            $base = 'conference';
+        }
+
+        if (ctype_digit($base)) {
+            $base = 'conference-' . $base;
+        }
+
+        $slug = $base;
+        $suffix = 2;
+
+        while (static::query()
+            ->where('slug', $slug)
+            ->when(
+                $ignoreId !== null,
+                fn($query) => $query->whereKeyNot($ignoreId)
+            )
+            ->exists()
+        ) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $query = static::query()
+            ->where('slug', $value);
+
+        if (ctype_digit((string) $value)) {
+            $query->orWhereKey($value);
+        }
+
+        return $query->first();
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
 }
