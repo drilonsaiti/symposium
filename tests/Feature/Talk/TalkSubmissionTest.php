@@ -138,6 +138,52 @@ it('requires an answer for a required cfp question', function () {
     Event::assertNotDispatched(TalkWasSubmitted::class);
 });
 
+it('repopulates cfp answers with old input after validation fails', function () {
+    $user = makeUser();
+
+    $conference = makeOpenConference();
+
+    $talk = Talk::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    $requiredQuestion = makeCfpQuestion($conference, [
+        'question' => 'Why do you want to give this talk?',
+        'required' => true,
+        'position' => 1,
+    ]);
+
+    $optionalQuestion = makeCfpQuestion($conference, [
+        'question' => 'Do you need any AV equipment?',
+        'required' => false,
+        'position' => 2,
+    ]);
+
+    $this->actingAs($user)
+        ->from(route('conferences.show', $conference))
+        ->post(route('conferences.talks.submit', [$conference, $talk]), [
+            'answers' => [
+                $requiredQuestion->id => '',
+                $optionalQuestion->id => 'I need a projector.',
+            ],
+        ])
+        ->assertRedirect(route('conferences.show', $conference))
+        ->assertSessionHasErrors(
+            "answers.{$requiredQuestion->id}"
+        )
+        ->assertSessionHasInput(
+            "answers.{$optionalQuestion->id}",
+            'I need a projector.'
+        );
+
+    $this->assertDatabaseMissing('conference_talk', [
+        'conference_id' => $conference->id,
+        'talk_id' => $talk->id,
+    ]);
+
+    Event::assertNotDispatched(TalkWasSubmitted::class);
+});
+
 it('allows an optional cfp question to remain unanswered', function () {
     $user = makeUser();
 
