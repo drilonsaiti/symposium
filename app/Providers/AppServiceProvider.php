@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Conference::class, ConferencePolicy::class);
         Gate::policy(Bio::class, BioPolicy::class);
         Gate::policy(CfpQuestion::class, CfpQuestionPolicy::class);
-
+        Gate::policy(ConferenceTalkReview::class, ConferenceTalkReviewPolicy::class);
 
         View::composer(['layouts.app','layouts.public.app'], function ($view) {
             $user = auth()->user();

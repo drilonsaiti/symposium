@@ -6,6 +6,7 @@ use App\DTOs\ConferenceDTO;
 use App\Enum\TalkSubmissionStatus;
 use App\Models\Bio;
 use App\Models\Conference;
+use App\Models\ConferenceTalkReview;
 use App\Models\User;
 
 final class GetConferenceDTO
@@ -36,6 +37,17 @@ final class GetConferenceDTO
             ->unique();
         $submissionBios = Bio::whereIn('id', $biosIds)
             ->get()->keyBy('id');
+
+        $reviewsBySubmission = collect();
+
+        if ($canViewSubmissions) {
+            $reviewsBySubmission = ConferenceTalkReview::query()
+                ->with('reviewer:id,name')
+                ->whereIn('conference_talk_id', $allTalks->pluck('pivot.id')->filter())
+                ->when(! $isOwner, fn ($q) => $q->where('user_id', $user?->id))
+                ->get()
+                ->groupBy('conference_talk_id');
+        }
 
 
         if ($user) {
@@ -72,7 +84,8 @@ final class GetConferenceDTO
             availableTalks: $availableTalks,
             bios: $bios,
             submissionBios: $submissionBios,
-            cfpQuestions: $cfpQuestions
+            cfpQuestions: $cfpQuestions,
+            reviewsBySubmission: $reviewsBySubmission
         );
     }
 }

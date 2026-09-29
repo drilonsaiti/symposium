@@ -74,6 +74,7 @@ class Conference extends Model
         return $this->belongsToMany(Talk::class)
             ->using(ConferenceTalk::class)
             ->withPivot([
+                'id',
                 'status',
                 'bio_id'
             ])

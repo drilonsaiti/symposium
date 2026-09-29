@@ -44,4 +44,9 @@ class ConferenceTalk extends Pivot
             'id'
         );
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ConferenceTalkReview::class);
+    }
 }

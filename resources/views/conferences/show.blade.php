@@ -310,6 +310,88 @@
                                                 </select>
                                             </form>
                                         </div>
+
+                                        @php
+                                            $submissionReviews = $reviewsBySubmission->get($talk->pivot->id, collect());
+                                            $myReview = $submissionReviews->first();
+                                        $isThisCard = (string) old('review_talk_id') === (string) $talk->id;
+                                        @endphp
+
+                                        <div class="mt-4 border-t pt-4">
+                                            <h4 class="text-sm font-semibold text-gray-700">Reviews</h4>
+
+                                            @if ($isOwner)
+                                                {{-- Owner: read-only list of every reviewer's review --}}
+                                                @forelse ($submissionReviews as $review)
+                                                    <div class="mt-3 rounded border p-3">
+                                                        <div class="flex items-center justify-between text-sm">
+                                                            <span
+                                                                class="font-medium">{{ $review->reviewer->name }}</span>
+                                                            <span>
+                        Score: {{ $review->score }}/5
+                        &middot; {{ $review->recommendation->label() }}
+                    </span>
+                                                        </div>
+                                                        @if ($review->note)
+                                                            <p class="mt-2 text-sm text-gray-600">{{ $review->note }}</p>
+                                                        @endif
+                                                    </div>
+                                                @empty
+                                                    <p class="mt-2 text-sm text-gray-500">No reviews yet.</p>
+                                                @endforelse
+                                            @else
+                                                {{-- Reviewer: one form, pre-filled with their own review if it exists --}}
+                                                <form method="POST"
+                                                      action="{{ route('conferences.talks.review.store', [$conference, $talk]) }}"
+                                                      class="mt-3 space-y-3">
+                                                    @csrf
+                                                    <input type="hidden" name="review_talk_id" value="{{ $talk->id }}">
+
+                                                    <div>
+                                                        <label class="block text-sm font-medium">Score (1-5)</label>
+                                                        <select name="score" required
+                                                                class="mt-1 rounded border-gray-300">
+                                                            <option value="">Select…</option>
+                                                            @foreach (range(1, 5) as $n)
+                                                                <option
+                                                                    value="{{ $n }}" @selected(($isThisCard ? old('score') : $myReview?->score) == $n)>{{ $n }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('score') <p
+                                                            class="text-sm text-red-600">{{ $message }}</p> @enderror
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-sm font-medium">Recommendation</label>
+                                                        <select name="recommendation" required
+                                                                class="mt-1 rounded border-gray-300">
+                                                            <option value="">Select…</option>
+                                                            @foreach (\App\Enum\ReviewRecommendation::cases() as $case)
+                                                                <option value="{{ $case->value }}"
+                                                                    @selected(old('recommendation', $myReview?->recommendation?->value) === $case->value)>
+                                                                    {{ $case->label() }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('recommendation') <p
+                                                            class="text-sm text-red-600">{{ $message }}</p> @enderror
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-sm font-medium">Note</label>
+                                                        <textarea name="note" rows="3"
+                                                                  class="mt-1 w-full rounded border-gray-300">{{ old('note', $myReview?->note) }}</textarea>
+                                                        @error('note') <p
+                                                            class="text-sm text-red-600">{{ $message }}</p> @enderror
+                                                    </div>
+
+                                                    <button type="submit"
+                                                            class="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white">
+                                                        {{ $myReview ? 'Update review' : 'Submit review' }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </article>
                                 @endforeach
                             </div>
@@ -418,7 +500,8 @@
 
                         {{-- Existing questions --}}
                         @if($cfpQuestions->isEmpty())
-                            <div class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+                            <div
+                                class="mt-7 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
                                 <p class="font-semibold text-gray-900">
                                     No CFP questions yet.
                                 </p>
@@ -490,7 +573,8 @@
                                                     </div>
 
                                                     <div class="flex items-end">
-                                                        <label class="flex items-center gap-3 text-sm font-semibold text-gray-900">
+                                                        <label
+                                                            class="flex items-center gap-3 text-sm font-semibold text-gray-900">
                                                             <input
                                                                 type="checkbox"
                                                                 name="required"

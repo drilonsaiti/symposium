@@ -100,6 +100,9 @@ Route::middleware('auth')->prefix('my')->group(function () {
 
     Route::patch('/conferences/{conference}/questions/{question}/move', [CfpQuestionController::class, 'move'])
         ->name('conferences.questions.move');
+
+    Route::post('conferences/{conference}/talks/{talk}/review', [ConferenceTalkReviewController::class, 'store'])
+        ->name('conferences.talks.review.store');
 });
 
 Route::resource('conferences', ConferenceController::class)->only(['index', 'show'])->names('public.conferences');
