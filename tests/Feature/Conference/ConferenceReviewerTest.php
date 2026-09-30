@@ -194,9 +194,10 @@ it('reviewer can decline a pending invitation', function () {
         ->delete(route('reviewing.decline', $conference))
         ->assertRedirect(route('reviewing.index'));
 
-    $this->assertDatabaseMissing('conference_reviewers', [
+    $this->assertDatabaseHas('conference_reviewers', [
         'conference_id' => $conference->id,
         'user_id' => $reviewer->id,
+        'status' => ConferenceReviewerStatus::DECLINED->value,
     ]);
 
     expect($reviewer->can('viewSubmissions', $conference))->toBeFalse();
@@ -275,3 +276,66 @@ it('non-owner cannot remove a reviewer', function () {
         'status' => ConferenceReviewerStatus::ACCEPTED->value,
     ]);
 });
+
+it('owner can re-invite a reviewer who previously declined', function () {
+    Notification::fake();
+
+    $owner = makeUser();
+    $reviewer = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $conference->reviewerInvitations()->attach($reviewer->id, [
+        'status' => ConferenceReviewerStatus::DECLINED,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('conferences.reviewers.store', $conference), [
+            'reviewer' => $reviewer->email,
+        ])
+        ->assertSessionHas('status', 'Reviewer invited successfully.');
+
+    $this->assertDatabaseHas('conference_reviewers', [
+        'conference_id' => $conference->id,
+        'user_id' => $reviewer->id,
+        'status' => ConferenceReviewerStatus::PENDING->value,
+    ]);
+
+    $this->assertDatabaseCount('conference_reviewers', 1);
+
+    Notification::assertSentTo($reviewer, ReviewerInvitedNotification::class);
+});
+
+it('does not re-invite a reviewer who is already pending or accepted', function (ConferenceReviewerStatus $status) {
+    Notification::fake();
+
+    $owner = makeUser();
+    $reviewer = makeUser();
+
+    $conference = Conference::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $conference->reviewerInvitations()->attach($reviewer->id, [
+        'status' => $status,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('conferences.reviewers.store', $conference), [
+            'reviewer' => $reviewer->email,
+        ])
+        ->assertSessionHas('status', 'Reviewer was already invited.');
+
+    $this->assertDatabaseHas('conference_reviewers', [
+        'conference_id' => $conference->id,
+        'user_id' => $reviewer->id,
+        'status' => $status->value,
+    ]);
+
+    Notification::assertNothingSent();
+})->with([
+    'pending' => ConferenceReviewerStatus::PENDING,
+    'accepted' => ConferenceReviewerStatus::ACCEPTED,
+]);

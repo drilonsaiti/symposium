@@ -44,7 +44,9 @@ class ReviewingController extends Controller
             ->whereKey($user->id)
             ->firstOrFail();
 
-        $conference->reviewerInvitations()->detach($user->id);
+        $conference->reviewerInvitations()->updateExistingPivot($user->id, [
+            'status' => ConferenceReviewerStatus::DECLINED,
+        ]);
 
         return redirect()->route('reviewing.index');
     }

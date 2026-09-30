@@ -24,25 +24,41 @@ class ConferenceReviewerController extends Controller
             ->byUsernameOrEmail($validated['reviewer'])
             ->firstOrFail();
 
-        try {
-            $conference->reviewerInvitations()->attach($reviewer->id, [
-                'status' => ConferenceReviewerStatus::PENDING,
-            ]);
-        } catch (QueryException $e) {
-            if ($e->getCode() === '23000') {
-                return back()
-                    ->with('status', 'Reviewer was already invited.');
+        $existing = $conference->reviewerInvitations()
+            ->where('users.id', $reviewer->id)
+            ->first();
+
+        if ($existing) {
+            $status = $existing->pivot->status;
+
+            if (! $status instanceof ConferenceReviewerStatus) {
+                $status = ConferenceReviewerStatus::from($status);
             }
 
-            throw $e;
+            if ($status !== ConferenceReviewerStatus::DECLINED) {
+                return back()->with('status', 'Reviewer was already invited.');
+            }
+
+            $conference->reviewerInvitations()->updateExistingPivot($reviewer->id, [
+                'status' => ConferenceReviewerStatus::PENDING,
+            ]);
+        } else {
+            try {
+                $conference->reviewerInvitations()->attach($reviewer->id, [
+                    'status' => ConferenceReviewerStatus::PENDING,
+                ]);
+            } catch (QueryException $e) {
+                if ($e->getCode() === '23000') {
+                    return back()->with('status', 'Reviewer was already invited.');
+                }
+
+                throw $e;
+            }
         }
 
-        $reviewer->notify(
-            new ReviewerInvitedNotification($conference)
-        );
+        $reviewer->notify(new ReviewerInvitedNotification($conference));
 
-        return back()
-            ->with('status', 'Reviewer invited successfully.');
+        return back()->with('status', 'Reviewer invited successfully.');
     }
 
     public function destroy(Conference $conference, User $user)
